@@ -1,0 +1,99 @@
+    
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <base href="/ezcourtforms2/" />
+    <title>Ez Court Forms Home</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- styles -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="/ezcourtforms2/Content/bootstrap-app-theme.css" rel="stylesheet" />
+    <link href="/ezcourtforms2/Content/font-awesome.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="app/styles.css">
+
+    <!-- Custom styles for this template -->
+    <link href="/ezcourtforms2/Content/jumbotron.css" rel="stylesheet" />
+
+    <!-- Polyfill(s) for older browsers -->
+    <!--
+    <script src="node_modules/core-js/client/shim.min.js"></script>
+    <script src="node_modules/zone.js/dist/zone.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+          -->
+    <script src="/ezcourtforms2/Scripts/jquery-2.1.1.min.js"></script>
+    <script src="/ezcourtforms2/Scripts/angular.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	
+
+<script src="preLibraries.bundle.js"></script>
+<script src="scripts/system.src.js"></script>
+<script src="systemjs.config.js"></script>
+<script src="libraries.bundle.js"></script>
+<script>
+	System.import('main.js').catch(function (err) { console.error(err); });
+</script>
+<script>
+	window.isInterview = true;
+</script>
+
+	
+</head>
+
+<body>
+    <div class="sr-only"><a role="link" href="#" class="skip-to">skip to main content</a></div>
+<script>
+	//to handle the skip to main content
+	$(document).ready(function () {
+		$(".skip-to").click(function (e) {
+			e.preventDefault();
+			$("h1:first").attr("tabindex", 0);
+			$("h1:first").focus();
+		});
+	});//end document ready
+</script>
+
+    <header class="navbar navbar-default navbar-fixed-top" role="banner">
+        <div class="container" role="navigation" aria-label="site">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand ezcf-logo" href="/ezcourtforms2/">
+                    <img src="/ezcourtforms2/Content/images/ezcf_logo_small.png" alt="EZ Court Forms Home" />
+                </a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/user/account/logon?returnUrl=/ezcourtforms2"><i class="fa fa-sign-in" aria-hidden="true"></i>&nbsp;&nbsp; Sign In</a></li>
+                    
+                </ul>
+
+            </div>
+            <!--/.navbar-collapse -->
+
+        </div>
+    </header>
+    <main class="container" role="main" >
+        <my-app>
+            <div class="text-primary" style="font-size:1.4em;margin:0 auto; text-align:center;">
+                <i class="fa fa-spinner fa-spin fa-3x" aria-hidden="true"></i> <span class="sr-only">Loading content ...</span>
+            </div>
+        </my-app>
+    </main>
+
+    <hr class="seperator">
+    <div>
+        <footer role="region" aria-label="footer">
+            <p class="text-center">&copy; 2026   Superior Court of Arizona in Maricopa County</p>
+        </footer>
+    </div>
+
+</body>
+</html>
+	

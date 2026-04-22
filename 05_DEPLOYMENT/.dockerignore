@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+output/
+.git/
+.gitignore
+.env
+.env.*
+*.md
+tests/
+*.test.*
+.dockerignore
+Dockerfile
+deploy.sh
+worksheet_page.html

@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Child Support Intake — Form</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="header-content">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <img src="/static/themis-logo.png" alt="Themis Court Path" class="header-logo">
+            <div>
+                <h1>Child Support Petition — Intake</h1>
+                <div class="header-subtitle">Navajo County Superior Court &bull; Themis Court Path</div>
+            </div>
+        </div>
+        <span class="header-badge" id="stepIndicator">Step 1 of 11</span>
+    </div>
+</header>
+
+<!-- Progress Bar -->
+<div class="progress-container">
+    <div class="progress-steps">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        <div class="step-dot active" data-step="1" onclick="goToStep(1)">1</div>
+        <div class="step-dot" data-step="2" onclick="goToStep(2)">2</div>
+        <div class="step-dot" data-step="3" onclick="goToStep(3)">3</div>
+        <div class="step-dot" data-step="4" onclick="goToStep(4)">4</div>
+        <div class="step-dot" data-step="5" onclick="goToStep(5)">5</div>
+        <div class="step-dot" data-step="6" onclick="goToStep(6)">6</div>
+        <div class="step-dot" data-step="7" onclick="goToStep(7)">7</div>
+        <div class="step-dot" data-step="8" onclick="goToStep(8)">8</div>
+        <div class="step-dot" data-step="9" onclick="goToStep(9)">9</div>
+        <div class="step-dot" data-step="10" onclick="goToStep(10)">10</div>
+        <div class="step-dot" data-step="11" onclick="goToStep(11)">11</div>
+    </div>
+    <div class="progress-labels">
+        <span class="step-label active">Petitioner</span>
+        <span class="step-label">Respondent</span>
+        <span class="step-label">Relationship</span>
+        <span class="step-label">Child</span>
+        <span class="step-label">Support $</span>
+        <span class="step-label">Arrears</span>
+        <span class="step-label">Resp. Job</span>
+        <span class="step-label">Pet. Job</span>
+        <span class="step-label">Worksheet</span>
+        <span class="step-label">Options</span>
+        <span class="step-label">Review</span>
+    </div>
+</div>
+
+<div class="main-content">
+    <form id="intakeForm" novalidate>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 1: PETITIONER
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel" id="step1">
+        <div class="section-title">
+            <span class="section-number">1</span>
+            Petitioner (Filing Party)
+        </div>
+        <p class="section-description">
+            The petitioner is the person filing for child support. Enter your information below.
+        </p>
+
+        <div class="form-row-3">
+            <div class="form-group">
+                <label>First Name <span class="required">*</span></label>
+                <input type="text" name="pet_first" required autocomplete="given-name">
+                <div class="field-error">First name is required</div>
+            </div>
+            <div class="form-group">
+                <label>Middle Name</label>
+                <input type="text" name="pet_middle">
+            </div>
+            <div class="form-group">
+                <label>Last Name <span class="required">*</span></label>
+                <input type="text" name="pet_last" required autocomplete="family-name">
+                <div class="field-error">Last name is required</div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Date of Birth <span class="required">*</span> <span class="hint">MM/DD/YYYY</span></label>
+                <input type="text" name="pet_dob" required placeholder="MM/DD/YYYY" data-validate="date">
+                <div class="field-error">Valid date required (MM/DD/YYYY)</div>
+            </div>
+            <div class="form-group">
+                <label>Gender <span class="required">*</span></label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="pet_gender" value="f" checked>
+                        <span>Female</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="pet_gender" value="m">
+                        <span>Male</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Social Security Number <span class="hint">Optional</span></label>
+                <input type="text" name="pet_ssn" placeholder="XXX-XX-XXXX">
+            </div>
+            <div class="form-group">
+                <label>Driver's License Number <span class="hint">Optional</span></label>
+                <input type="text" name="pet_dl">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" name="pet_phone" autocomplete="tel">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="pet_email" autocomplete="email">
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Petitioner Address</div>
+            <div class="form-group">
+                <label>Street Address <span class="required">*</span></label>
+                <input type="text" name="pet_address" required autocomplete="street-address">
+                <div class="field-error">Address is required</div>
+            </div>
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>City <span class="required">*</span></label>
+                    <input type="text" name="pet_city" required autocomplete="address-level2">
+                    <div class="field-error">City is required</div>
+                </div>
+                <div class="form-group">
+                    <label>State <span class="required">*</span></label>
+                    <input type="text" name="pet_state" value="AZ" required autocomplete="address-level1">
+                    <div class="field-error">State is required</div>
+                </div>
+                <div class="form-group">
+                    <label>ZIP Code <span class="required">*</span></label>
+                    <input type="text" name="pet_zip" required data-validate="zip" autocomplete="postal-code">
+                    <div class="field-error">Valid 5-digit ZIP required</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Representation</div>
+            <div class="form-group">
+                <label>Do you have an attorney?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="pet_has_attorney" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="pet_has_attorney" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="pet_has_attorney" value="no">
+            </div>
+
+            <div class="conditional" id="attorney-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Attorney Name</label>
+                        <input type="text" name="pet_attorney_name">
+                    </div>
+                    <div class="form-group">
+                        <label>Bar Number</label>
+                        <input type="text" name="pet_attorney_bar">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Attorney Address</label>
+                        <input type="text" name="pet_attorney_address">
+                    </div>
+                    <div class="form-group">
+                        <label>Attorney Phone</label>
+                        <input type="tel" name="pet_attorney_phone">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <a href="/" class="btn btn-secondary">&larr; Start Over</a>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 2: RESPONDENT
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step2">
+        <div class="section-title">
+            <span class="section-number">2</span>
+            Respondent (Other Parent)
+        </div>
+        <p class="section-description">
+            The respondent is the other parent in this child support matter.
+        </p>
+
+        <div class="form-row-3">
+            <div class="form-group">
+                <label>First Name <span class="required">*</span></label>
+                <input type="text" name="resp_first" required>
+                <div class="field-error">First name is required</div>
+            </div>
+            <div class="form-group">
+                <label>Middle Name</label>
+                <input type="text" name="resp_middle">
+            </div>
+            <div class="form-group">
+                <label>Last Name <span class="required">*</span></label>
+                <input type="text" name="resp_last" required>
+                <div class="field-error">Last name is required</div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Date of Birth <span class="required">*</span> <span class="hint">MM/DD/YYYY</span></label>
+                <input type="text" name="resp_dob" required placeholder="MM/DD/YYYY" data-validate="date">
+                <div class="field-error">Valid date required (MM/DD/YYYY)</div>
+            </div>
+            <div class="form-group">
+                <label>Gender <span class="required">*</span></label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="resp_gender" value="m" checked>
+                        <span>Male</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="resp_gender" value="f">
+                        <span>Female</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Social Security Number <span class="hint">Optional</span></label>
+                <input type="text" name="resp_ssn" placeholder="XXX-XX-XXXX">
+            </div>
+            <div class="form-group">
+                <label>Driver's License Number <span class="hint">Optional</span></label>
+                <input type="text" name="resp_dl">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" name="resp_phone">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="resp_email">
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Respondent Address</div>
+            <div class="form-group">
+                <label>Street Address <span class="required">*</span></label>
+                <input type="text" name="resp_address" required>
+                <div class="field-error">Address is required</div>
+            </div>
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>City <span class="required">*</span></label>
+                    <input type="text" name="resp_city" required>
+                    <div class="field-error">City is required</div>
+                </div>
+                <div class="form-group">
+                    <label>State <span class="required">*</span></label>
+                    <input type="text" name="resp_state" value="AZ" required>
+                    <div class="field-error">State is required</div>
+                </div>
+                <div class="form-group">
+                    <label>ZIP Code <span class="required">*</span></label>
+                    <input type="text" name="resp_zip" required data-validate="zip">
+                    <div class="field-error">Valid 5-digit ZIP required</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 3: RELATIONSHIP
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step3">
+        <div class="section-title">
+            <span class="section-number">3</span>
+            Relationship to Child
+        </div>
+        <p class="section-description">
+            This information is critical for the legal filing. Please answer carefully.
+        </p>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Petitioner's relationship to child <span class="required">*</span></label>
+                <select name="pet_role" required>
+                    <option value="mother">Mother</option>
+                    <option value="father">Father</option>
+                    <option value="guardian">Legal Guardian</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Respondent's relationship to child <span class="required">*</span></label>
+                <select name="resp_role" required>
+                    <option value="father">Father</option>
+                    <option value="mother">Mother</option>
+                    <option value="guardian">Legal Guardian</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Paternity Status</div>
+            <div class="info-box warning">
+                <strong>Important:</strong> These answers affect the legal basis of the petition.
+                Answer truthfully — the court relies on this information.
+            </div>
+
+            <div class="form-group">
+                <label>Is the respondent listed on the birth certificate?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="on_birth_cert" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="on_birth_cert" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="on_birth_cert" value="no">
+            </div>
+
+            <div class="form-group">
+                <label>Has paternity been legally established by court order?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="paternity_established" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="paternity_established" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="paternity_established" value="no">
+            </div>
+
+            <div class="form-group">
+                <label>Has paternity been acknowledged (signed acknowledgment form)?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="paternity_acknowledged" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="paternity_acknowledged" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="paternity_acknowledged" value="no">
+            </div>
+
+            <div class="form-group">
+                <label>Is the respondent contesting that they are the parent?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="contesting_paternity" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="contesting_paternity" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="contesting_paternity" value="no">
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Marriage Status</div>
+            <div class="form-group">
+                <label>Were the parents married when the child was born?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="were_married" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="were_married" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="were_married" value="no">
+            </div>
+
+            <div class="conditional" id="still-married-section">
+                <div class="form-group">
+                    <label>Are they still married?</label>
+                    <div class="yes-no-group">
+                        <button type="button" class="yes-no-btn" data-field="still_married" data-value="yes">Yes</button>
+                        <button type="button" class="yes-no-btn selected-no" data-field="still_married" data-value="no">No</button>
+                    </div>
+                    <input type="hidden" name="still_married" value="no">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 4: CHILD INFORMATION
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step4">
+        <div class="section-title">
+            <span class="section-number">4</span>
+            Child Information
+        </div>
+        <p class="section-description">
+            Enter information for one child. If there are additional children with a
+            different other parent, complete a separate intake for each.
+        </p>
+
+        <div class="form-row-3">
+            <div class="form-group">
+                <label>Child's First Name <span class="required">*</span></label>
+                <input type="text" name="child_first" required>
+                <div class="field-error">First name is required</div>
+            </div>
+            <div class="form-group">
+                <label>Child's Middle Name</label>
+                <input type="text" name="child_middle">
+            </div>
+            <div class="form-group">
+                <label>Child's Last Name <span class="required">*</span></label>
+                <input type="text" name="child_last" required>
+                <div class="field-error">Last name is required</div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Date of Birth <span class="required">*</span> <span class="hint">MM/DD/YYYY</span></label>
+                <input type="text" name="child_dob" required placeholder="MM/DD/YYYY" data-validate="date">
+                <div class="field-error">Valid date required (MM/DD/YYYY)</div>
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="child_gender" value="m" checked>
+                        <span>Male</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="child_gender" value="f">
+                        <span>Female</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Social Security Number <span class="hint">Optional — leave blank if unknown</span></label>
+            <input type="text" name="child_ssn" placeholder="XXX-XX-XXXX">
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Child's Residence</div>
+            <div class="form-group">
+                <label>Child primarily lives with <span class="required">*</span></label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="child_lives_with" value="pet" checked onchange="updateChildAddress()">
+                        <span>Petitioner</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="child_lives_with" value="resp" onchange="updateChildAddress()">
+                        <span>Respondent</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="child_lives_with" value="other" onchange="updateChildAddress()">
+                        <span>Other</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="info-box note" id="child-address-auto">
+                The child's address will be set to the petitioner's address automatically.
+            </div>
+
+            <div class="conditional" id="child-address-section">
+                <div class="form-group">
+                    <label>Child's Street Address <span class="required">*</span></label>
+                    <input type="text" name="child_address">
+                </div>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" name="child_city">
+                    </div>
+                    <div class="form-group">
+                        <label>State</label>
+                        <input type="text" name="child_state" value="AZ">
+                    </div>
+                    <div class="form-group">
+                        <label>ZIP Code</label>
+                        <input type="text" name="child_zip">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 5: CHILD SUPPORT AMOUNTS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step5">
+        <div class="section-title">
+            <span class="section-number">5</span>
+            Child Support Amounts
+        </div>
+        <p class="section-description">
+            If you have already completed the Arizona Child Support Guidelines Worksheet,
+            enter the calculated values here. Otherwise, these can be filled in later.
+        </p>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Monthly Child Support Amount <span class="hint">e.g. 971.00</span></label>
+                <input type="text" name="monthly_amount" placeholder="0.00" data-validate="dollar">
+                <div class="field-error">Please enter a valid dollar amount</div>
+            </div>
+            <div class="form-group">
+                <label>Who pays child support?</label>
+                <select name="support_payor">
+                    <option value="resp">Respondent pays</option>
+                    <option value="pet">Petitioner pays</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Uninsured Medical Expense Split</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Per the Arizona Guidelines, uninsured medical expenses are split by income proportion.
+            </p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Petitioner's Share (%) <span class="hint">e.g. 22</span></label>
+                    <input type="text" name="pet_medical_pct" placeholder="0" data-validate="percent" oninput="autoCalcResp()">
+                    <div class="field-error">Enter a percentage 0-100</div>
+                </div>
+                <div class="form-group">
+                    <label>Respondent's Share (%) <span class="hint">auto-calculated</span></label>
+                    <input type="text" name="resp_medical_pct" placeholder="0" data-validate="percent">
+                    <div class="field-error">Enter a percentage 0-100</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Travel Expense Split</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                If parents live far apart, travel costs for visitation may be split.
+            </p>
+            <div class="form-group">
+                <label>Use same split as medical expenses?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn selected-yes" data-field="travel_same_split" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn" data-field="travel_same_split" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="travel_same_split" value="yes">
+            </div>
+
+            <div class="conditional" id="travel-split-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Petitioner's Travel Share (%)</label>
+                        <input type="text" name="pet_travel_pct" placeholder="0" data-validate="percent">
+                    </div>
+                    <div class="form-group">
+                        <label>Respondent's Travel Share (%)</label>
+                        <input type="text" name="resp_travel_pct" placeholder="0" data-validate="percent">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Health Insurance</div>
+            <div class="form-group">
+                <label>Who currently provides health insurance for the child?</label>
+                <select name="who_provides_insurance" onchange="toggleInsuranceCost()">
+                    <option value="pet">Petitioner</option>
+                    <option value="resp">Respondent</option>
+                    <option value="both">Both</option>
+                    <option value="none">Neither / Uninsured</option>
+                    <option value="state">AHCCCS / State Program</option>
+                </select>
+            </div>
+            <div class="form-group" id="insurance-cost-group">
+                <label>Monthly Cost of Child's Health Insurance Portion</label>
+                <input type="text" name="insurance_cost" placeholder="0.00" data-validate="dollar">
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 6: ARREARS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step6">
+        <div class="section-title">
+            <span class="section-number">6</span>
+            Past Support / Arrears
+        </div>
+        <p class="section-description">
+            If the respondent owes past child support that was never paid, you can request
+            the court to order those arrears in addition to ongoing support.
+        </p>
+
+        <div class="form-group">
+            <label>Are you requesting past child support (arrears)?</label>
+            <div class="yes-no-group">
+                <button type="button" class="yes-no-btn" data-field="requesting_arrears" data-value="yes">Yes</button>
+                <button type="button" class="yes-no-btn selected-no" data-field="requesting_arrears" data-value="no">No</button>
+            </div>
+            <input type="hidden" name="requesting_arrears" value="no">
+        </div>
+
+        <div class="conditional" id="arrears-section">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>From What Date? <span class="hint">MM/DD/YYYY</span></label>
+                    <input type="text" name="arrears_from" placeholder="MM/DD/YYYY" data-validate="date">
+                    <div class="field-error">Valid date required</div>
+                </div>
+                <div class="form-group">
+                    <label>Total Past Support Amount Requested</label>
+                    <input type="text" name="arrears_amount" placeholder="0.00" data-validate="dollar">
+                    <div class="field-error">Please enter a valid dollar amount</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notes About Arrears Claim <span class="hint">Optional</span></label>
+                <textarea name="arrears_notes" placeholder="Any additional details about the past support claim..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 7: RESPONDENT EMPLOYMENT
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step7">
+        <div class="section-title">
+            <span class="section-number">7</span>
+            Respondent Employment
+        </div>
+        <p class="section-description">
+            This information is used for the Employer Information Sheet
+            and potential income withholding order.
+        </p>
+
+        <div class="form-group">
+            <label>Is the respondent currently employed?</label>
+            <div class="yes-no-group">
+                <button type="button" class="yes-no-btn selected-yes" data-field="resp_employed" data-value="yes">Yes</button>
+                <button type="button" class="yes-no-btn" data-field="resp_employed" data-value="no">No</button>
+            </div>
+            <input type="hidden" name="resp_employed" value="yes">
+        </div>
+
+        <div class="conditional visible" id="resp-employed-section">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Employer / Company Name <span class="required">*</span></label>
+                    <input type="text" name="resp_employer_name">
+                    <div class="field-error">Employer name is required</div>
+                </div>
+                <div class="form-group">
+                    <label>Employment Type</label>
+                    <select name="resp_employment_type">
+                        <option value="w2">W-2 Employee</option>
+                        <option value="1099">Independent Contractor / 1099</option>
+                        <option value="self">Self-employed</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Employer Street Address <span class="hint">or "Unknown"</span></label>
+                <input type="text" name="resp_employer_address">
+            </div>
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" name="resp_employer_city">
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text" name="resp_employer_state" value="AZ">
+                </div>
+                <div class="form-group">
+                    <label>ZIP</label>
+                    <input type="text" name="resp_employer_zip">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Employer Phone</label>
+                    <input type="tel" name="resp_employer_phone">
+                </div>
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" name="resp_job_title">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Payroll / HR Mailing Address <span class="hint">If different, or "Unknown"</span></label>
+                <input type="text" name="resp_payroll_address">
+            </div>
+        </div>
+
+        <div class="conditional" id="resp-unemployed-section">
+            <div class="form-group">
+                <label>Last Known Employer <span class="hint">If any</span></label>
+                <input type="text" name="resp_last_employer">
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="form-group">
+                <label>Do you know the respondent's gross monthly income?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="know_resp_income" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="know_resp_income" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="know_resp_income" value="no">
+            </div>
+            <div class="conditional" id="resp-income-section">
+                <div class="form-group">
+                    <label>Respondent's Gross Monthly Income</label>
+                    <input type="text" name="resp_monthly_income" placeholder="0.00" data-validate="dollar">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 8: PETITIONER EMPLOYMENT
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step8">
+        <div class="section-title">
+            <span class="section-number">8</span>
+            Petitioner Employment
+        </div>
+        <p class="section-description">
+            Needed for the child support worksheet calculations.
+        </p>
+
+        <div class="form-group">
+            <label>Is the petitioner currently employed?</label>
+            <div class="yes-no-group">
+                <button type="button" class="yes-no-btn selected-yes" data-field="pet_employed" data-value="yes">Yes</button>
+                <button type="button" class="yes-no-btn" data-field="pet_employed" data-value="no">No</button>
+            </div>
+            <input type="hidden" name="pet_employed" value="yes">
+        </div>
+
+        <div class="conditional visible" id="pet-employed-section">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Employer / Company Name</label>
+                    <input type="text" name="pet_employer_name">
+                </div>
+                <div class="form-group">
+                    <label>Employment Type</label>
+                    <select name="pet_employment_type">
+                        <option value="w2">W-2 Employee</option>
+                        <option value="1099">Independent Contractor / 1099</option>
+                        <option value="self">Self-employed</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="form-group">
+                <label>Do you know the petitioner's gross monthly income?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="know_pet_income" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="know_pet_income" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="know_pet_income" value="no">
+            </div>
+            <div class="conditional" id="pet-income-section">
+                <div class="form-group">
+                    <label>Petitioner's Gross Monthly Income</label>
+                    <input type="text" name="pet_monthly_income" placeholder="0.00" data-validate="dollar">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 9: CHILD SUPPORT WORKSHEET (Pages 15-17)
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step9">
+        <div class="section-title">
+            <span class="section-number">9</span>
+            Child Support Worksheet
+        </div>
+        <p class="section-description">
+            This is the Arizona Parent's Worksheet for Child Support (DRS12F).
+            These values will be filled onto pages 15-17 of the petition packet.
+            The worksheet calculates the actual child support obligation based on both parents' incomes.
+        </p>
+
+        <div class="info-box note">
+            <strong>Tip:</strong> The "Father" and "Mother" columns on the worksheet correspond
+            to the parents' roles, not petitioner/respondent. The system will map them correctly
+            based on the relationship info you entered in Step 3.
+        </div>
+
+        <div class="info-box success">
+            <strong>Auto-calculation:</strong> Fields highlighted in <span style="background: var(--accent-light); padding: 0 6px; border-radius: 3px; color: var(--primary); font-weight: 600;">gold</span>
+            are calculated automatically as you type. You can still override any value manually if needed.
+            Only the <strong>Basic Child Support Obligation (Line 21)</strong> must be looked up from the AZ Guidelines table —
+            it cannot be calculated from the inputs.
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Worksheet Setup</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>How is the other parent's income determined?</label>
+                    <select name="ws_income_type">
+                        <option value="actual">Actual (with proof — W2, pay stub, etc.)</option>
+                        <option value="estimated">Estimated (based on knowledge of pay)</option>
+                        <option value="attributed">Attributed (what they could/should earn)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Number of Minor Children</label>
+                    <input type="text" name="ws_num_minor_children" value="1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Number of Children Age 12 or Over</label>
+                <input type="text" name="ws_num_children_over_12" value="0">
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Parenting Time Schedule</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                The Arizona Guidelines calculate a parenting time adjustment based on the <strong>exact number of
+                overnights</strong> per year each parent has with the child. Build the schedule below or enter
+                the totals directly at the bottom.
+            </p>
+
+            <div class="info-box note" style="margin-bottom: 1.2rem;">
+                <strong>How overnights work:</strong> An "overnight" means the child sleeps at that parent's home.
+                The total for both parents must equal 365 days/year. The non-custodial parent's day count
+                determines whether <strong>Table A</strong> (&lt;110 days) or <strong>Table B</strong> (110+ days) is used.
+            </div>
+
+            <!-- Regular Weekly Schedule -->
+            <div style="background: var(--bg); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1rem;">
+                <h4 style="font-size: 0.95rem; color: var(--primary); margin-bottom: 0.8rem;">Regular Weekly Schedule</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Weeknight overnights per week with Father <span class="hint">0-5</span></label>
+                        <input type="number" name="pt_weeknights_father" min="0" max="5" value="0" oninput="calcParentingTime()">
+                    </div>
+                    <div class="form-group">
+                        <label>Weeknight overnights per week with Mother <span class="hint">0-5</span></label>
+                        <input type="number" name="pt_weeknights_mother" min="0" max="5" value="5" oninput="calcParentingTime()">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Weekend overnights per month with Father <span class="hint">0-8</span></label>
+                        <input type="number" name="pt_weekends_father" min="0" max="8" value="4" oninput="calcParentingTime()">
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Every-other-weekend = 4</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Weekend overnights per month with Mother <span class="hint">0-8</span></label>
+                        <input type="number" name="pt_weekends_mother" min="0" max="8" value="4" oninput="calcParentingTime()">
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Every-other-weekend = 4</div>
+                    </div>
+                </div>
+                <div class="info-box note" style="margin-top: 0.5rem;" id="regular-subtotal">
+                    Regular schedule: Father ~0 nights/year, Mother ~0 nights/year
+                </div>
+            </div>
+
+            <!-- Holiday & Break Schedule -->
+            <div style="background: var(--bg); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1rem;">
+                <h4 style="font-size: 0.95rem; color: var(--primary); margin-bottom: 0.8rem;">Holiday &amp; Break Schedule</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+                    Enter additional overnights beyond the regular weekly schedule. If holidays already
+                    fall on that parent's regular time, enter 0.
+                </p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Summer extended time — Father <span class="hint">overnights</span></label>
+                        <input type="number" name="pt_summer_father" min="0" max="90" value="14" oninput="calcParentingTime()">
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">2 weeks = 14, 4 weeks = 28, 6 weeks = 42</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Summer extended time — Mother <span class="hint">overnights</span></label>
+                        <input type="number" name="pt_summer_mother" min="0" max="90" value="0" oninput="calcParentingTime()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Winter Break (Christmas/New Year) — Father <span class="hint">overnights</span></label>
+                        <input type="number" name="pt_winter_father" min="0" max="21" value="7" oninput="calcParentingTime()">
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Alternating halves ≈ 7 overnights</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Winter Break — Mother <span class="hint">overnights</span></label>
+                        <input type="number" name="pt_winter_mother" min="0" max="21" value="7" oninput="calcParentingTime()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Spring Break — Father <span class="hint">overnights</span></label>
+                        <input type="number" name="pt_spring_father" min="0" max="14" value="0" oninput="calcParentingTime()">
+                    </div>
+                    <div class="form-group">
+                        <label>Spring Break — Mother <span class="hint">overnights</span></label>
+                        <input type="number" name="pt_spring_mother" min="0" max="14" value="0" oninput="calcParentingTime()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Other holidays (Thanksgiving, Memorial Day, etc.) — Father <span class="hint">total overnights</span></label>
+                        <input type="number" name="pt_holidays_father" min="0" max="30" value="3" oninput="calcParentingTime()">
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Thanksgiving 3-4 days, etc.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Other holidays — Mother <span class="hint">total overnights</span></label>
+                        <input type="number" name="pt_holidays_mother" min="0" max="30" value="3" oninput="calcParentingTime()">
+                    </div>
+                </div>
+
+                <div class="info-box note" style="margin-top: 0.5rem;" id="holiday-subtotal">
+                    Holiday/break additions: Father +0 nights, Mother +0 nights
+                </div>
+            </div>
+
+            <!-- Annual Totals -->
+            <div style="background: var(--accent-light); border: 2px solid var(--accent); border-radius: var(--radius); padding: 1.2rem;">
+                <h4 style="font-size: 0.95rem; color: var(--primary); margin-bottom: 0.8rem;">Annual Totals (auto-calculated)</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Total Annual Overnights — Father</label>
+                        <input type="number" name="pt_total_father" min="0" max="365" value="0" readonly style="font-size: 1.1rem; font-weight: 700;">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Annual Overnights — Mother</label>
+                        <input type="number" name="pt_total_mother" min="0" max="365" value="0" readonly style="font-size: 1.1rem; font-weight: 700;">
+                    </div>
+                </div>
+                <div id="parenting-time-status" class="info-box success" style="margin-top: 0.5rem;">
+                    Total: 0 / 365 days
+                </div>
+
+                <div style="margin-top: 0.8rem;">
+                    <label style="font-size: 0.85rem;">
+                        <input type="checkbox" id="pt_override_check" onchange="toggleParentingOverride()">
+                        Override auto-calculation — I know the exact day counts
+                    </label>
+                </div>
+                <div class="conditional" id="pt-override-section">
+                    <div class="form-row" style="margin-top: 0.5rem;">
+                        <div class="form-group">
+                            <label>Father overnights/year (manual)</label>
+                            <input type="number" name="pt_override_father" min="0" max="365" placeholder="e.g. 120" oninput="applyParentingOverride()">
+                        </div>
+                        <div class="form-group">
+                            <label>Mother overnights/year (manual)</label>
+                            <input type="number" name="pt_override_mother" min="0" max="365" placeholder="e.g. 245" oninput="applyParentingOverride()">
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="ws_time_sharing" value="mostly_mother">
+                <input type="hidden" name="ws_parenting_table" value="A">
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Line 13 — Gross Monthly Income</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+                Auto-populated from the income figures in Steps 7 &amp; 8, mapped to Father/Mother
+                based on the petitioner's role in Step 3. You can override either value if needed.
+            </p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Father's Gross Monthly Income <span class="required">*</span></label>
+                    <input type="text" name="ws_father_gross" required placeholder="0.00" data-validate="dollar">
+                    <div class="field-error">Valid dollar amount required</div>
+                </div>
+                <div class="form-group">
+                    <label>Mother's Gross Monthly Income <span class="required">*</span></label>
+                    <input type="text" name="ws_mother_gross" required placeholder="0.00" data-validate="dollar">
+                    <div class="field-error">Valid dollar amount required</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Lines 14-18 — Adjustments to Income</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Enter 0 for any that don't apply. These reduce the gross income to calculate the adjusted amount.
+            </p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>(14) Father — Spousal Maintenance Paid</label>
+                    <input type="text" name="ws_father_spousal_paid" value="0" data-validate="dollar">
+                </div>
+                <div class="form-group">
+                    <label>(14) Mother — Spousal Maintenance Paid</label>
+                    <input type="text" name="ws_mother_spousal_paid" value="0" data-validate="dollar">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>(15) Father — Spousal Maintenance Received</label>
+                    <input type="text" name="ws_father_spousal_received" value="0" data-validate="dollar">
+                </div>
+                <div class="form-group">
+                    <label>(15) Mother — Spousal Maintenance Received</label>
+                    <input type="text" name="ws_mother_spousal_received" value="0" data-validate="dollar">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>(17) Father — Court-Ordered CS for Other Children</label>
+                    <input type="text" name="ws_father_other_cs" value="0" data-validate="dollar">
+                </div>
+                <div class="form-group">
+                    <label>(17) Mother — Court-Ordered CS for Other Children</label>
+                    <input type="text" name="ws_mother_other_cs" value="0" data-validate="dollar">
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Line 19-20 — Adjusted Income</div>
+            <div class="info-box note" style="margin-bottom: 1rem;">
+                Line 19 = Gross income minus deductions above. Line 20 = Father + Mother combined.
+                If you've already calculated these, enter them. Otherwise, the system will use gross income.
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>(19) Father — Adjusted Gross Monthly Income <span class="hint">auto</span></label>
+                    <input type="text" name="ws_father_adjusted" placeholder="0.00" data-validate="dollar" readonly>
+                </div>
+                <div class="form-group">
+                    <label>(19) Mother — Adjusted Gross Monthly Income <span class="hint">auto</span></label>
+                    <input type="text" name="ws_mother_adjusted" placeholder="0.00" data-validate="dollar" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>(20) Combined Adjusted Gross Income <span class="hint">auto</span></label>
+                <input type="text" name="ws_combined_adjusted" placeholder="0.00" data-validate="dollar" readonly>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Lines 21-29 — Support Obligation Calculation</div>
+            <div class="form-group">
+                <label>(21) Basic Child Support Obligation <span class="hint">auto — from AZ Guidelines Schedule (Appendix A). Override if needed.</span></label>
+                <input type="text" name="ws_basic_obligation" placeholder="0.00" data-validate="dollar">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>(23) Father — Medical/Dental/Vision Insurance Paid</label>
+                    <input type="text" name="ws_father_medical_ins" value="0" data-validate="dollar">
+                </div>
+                <div class="form-group">
+                    <label>(23) Mother — Medical/Dental/Vision Insurance Paid</label>
+                    <input type="text" name="ws_mother_medical_ins" value="0" data-validate="dollar">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>(24) Father — Monthly Childcare Costs</label>
+                    <input type="text" name="ws_father_childcare" value="0" data-validate="dollar">
+                </div>
+                <div class="form-group">
+                    <label>(24) Mother — Monthly Childcare Costs</label>
+                    <input type="text" name="ws_mother_childcare" value="0" data-validate="dollar">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>(29) Total Child Support Obligation <span class="hint">auto — after all adjustments</span></label>
+                <input type="text" name="ws_total_obligation" placeholder="0.00" data-validate="dollar" readonly>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Lines 30-35 — Proportionate Shares</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>(30) Father's % of Combined Income <span class="hint">auto</span></label>
+                    <input type="text" name="ws_father_pct" placeholder="0" data-validate="percent" readonly>
+                    <div class="field-error">Enter a percentage 0-100</div>
+                </div>
+                <div class="form-group">
+                    <label>(30) Mother's % of Combined Income <span class="hint">auto</span></label>
+                    <input type="text" name="ws_mother_pct" placeholder="0" data-validate="percent" readonly>
+                    <div class="field-error">Enter a percentage 0-100</div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>(31) Father's Share of Total Obligation <span class="hint">auto</span></label>
+                    <input type="text" name="ws_father_share" placeholder="0.00" data-validate="dollar" readonly>
+                </div>
+                <div class="form-group">
+                    <label>(31) Mother's Share of Total Obligation <span class="hint">auto</span></label>
+                    <input type="text" name="ws_mother_share" placeholder="0.00" data-validate="dollar" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>(35) Preliminary Child Support Amount <span class="hint">auto — before self-support test</span></label>
+                <input type="text" name="ws_preliminary_cs" placeholder="0.00" data-validate="dollar" readonly>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Lines 36-37 — Final Amount</div>
+            <div class="form-group">
+                <label>(37) Who pays child support?</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="ws_cs_paid_by" value="father" checked>
+                        <span>Father</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ws_cs_paid_by" value="mother">
+                        <span>Mother</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>(37) Final Child Support Amount Per Month <span class="hint">auto — override if self-support reserve applies</span></label>
+                <input type="text" name="ws_final_cs_amount" placeholder="0.00" data-validate="dollar">
+                <div class="field-error">Valid dollar amount required</div>
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 10: ADDITIONAL OPTIONS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step10">
+        <div class="section-title">
+            <span class="section-number">10</span>
+            Additional Options
+        </div>
+        <p class="section-description">
+            Optional requests that can be included in the petition.
+        </p>
+
+        <div class="subsection">
+            <div class="subsection-title">Tax Exemption</div>
+            <div class="form-group">
+                <label>Request specific tax exemption allocation?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="request_tax_exemption" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="request_tax_exemption" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="request_tax_exemption" value="no">
+            </div>
+            <div class="conditional" id="tax-exemption-section">
+                <div class="form-group">
+                    <label>Who claims the child on taxes?</label>
+                    <select name="tax_exemption_to">
+                        <option value="pet">Petitioner</option>
+                        <option value="resp">Respondent</option>
+                        <option value="alt">Alternate Years</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Address Protection</div>
+            <div class="form-group">
+                <label>Request address protection (hide address from other party)?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="address_protection" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="address_protection" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="address_protection" value="no">
+            </div>
+            <div class="conditional" id="address-protection-section">
+                <div class="info-box note">
+                    If granted, a safe mailing address will be used on court documents
+                    instead of the physical address.
+                </div>
+                <div class="form-group">
+                    <label>Safe Mailing Address (P.O. Box, etc.)</label>
+                    <input type="text" name="safe_address">
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Payment Start Date</div>
+            <div class="form-group">
+                <label>Request a specific start date for support?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="has_start_date" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="has_start_date" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="has_start_date" value="no">
+            </div>
+            <div class="conditional" id="start-date-section">
+                <div class="form-group">
+                    <label>Requested Start Date <span class="hint">MM/DD/YYYY</span></label>
+                    <input type="text" name="start_date" placeholder="MM/DD/YYYY" data-validate="date">
+                </div>
+            </div>
+            <div class="info-box note" id="court-sets-date" style="margin-top: 0.5rem;">
+                The court will set the commencement date.
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Filing Venue</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Filing County <span class="required">*</span></label>
+                    <input type="text" name="venue_county" value="Navajo" required>
+                </div>
+                <div class="form-group">
+                    <label>Venue Basis</label>
+                    <select name="venue_basis">
+                        <option value="pet_lives">Petitioner lives in this county</option>
+                        <option value="resp_lives">Respondent lives in this county</option>
+                        <option value="child_lives">Child lives in this county</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Legal Disclosures (Page 7)</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                These questions are required by the Family Court Cover Sheet and must be answered
+                even if the answer is "No."
+            </p>
+
+            <div class="form-group">
+                <label>Do you receive or have you received public assistance (AFDC, TANF, AHCCCS) for the child or yourself?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="public_assistance" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="public_assistance" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="public_assistance" value="no">
+            </div>
+
+            <div class="form-group">
+                <label>Do you have a case with the Division of Child Support Enforcement (DCSE)?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="dcse_case" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="dcse_case" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="dcse_case" value="no">
+            </div>
+
+            <div class="form-group">
+                <label>Do you currently have ANY other Navajo County Superior Court cases?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="current_other_cases" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="current_other_cases" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="current_other_cases" value="no">
+            </div>
+
+            <div class="form-group">
+                <label>Have you ever had ANY other Navajo County Superior Court cases?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="past_other_cases" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="past_other_cases" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="past_other_cases" value="no">
+            </div>
+
+            <div class="form-group">
+                <label>Is the wife currently pregnant?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="wife_pregnant" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="wife_pregnant" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="wife_pregnant" value="no">
+            </div>
+
+            <div class="form-group">
+                <label>Is the respondent being served by publication?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="served_by_publication" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="served_by_publication" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="served_by_publication" value="no">
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Jurisdiction Basis (Page 10)</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Why does this Court have jurisdiction to order child support? Check ALL that apply.
+            </p>
+
+            <div class="form-group">
+                <label class="checkbox-option">
+                    <input type="checkbox" name="juris_resident" value="yes">
+                    <span>The Respondent is a resident of Arizona</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-option">
+                    <input type="checkbox" name="juris_serve" value="yes">
+                    <span>I believe I will personally serve the Respondent in Arizona</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-option">
+                    <input type="checkbox" name="juris_agrees" value="yes">
+                    <span>The Respondent agrees to have the case heard here</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-option">
+                    <input type="checkbox" name="juris_lived_with_child" value="yes">
+                    <span>The Respondent lived with the minor child(ren) in this state at some time</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-option">
+                    <input type="checkbox" name="juris_prebirth" value="yes">
+                    <span>The Respondent lived in this state and provided pre-birth expenses or support for the child</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-option">
+                    <input type="checkbox" name="juris_child_lives" value="yes">
+                    <span>The minor child(ren) lives in this state as a result of the acts or directions of the Respondent</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Paternity Established By (Page 11, Item 6)</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                If paternity has already been established, how? Select one.
+            </p>
+            <div class="form-group">
+                <select name="paternity_method">
+                    <option value="">Not yet established — petition requests establishment</option>
+                    <option value="court_order">A court order for paternity from this or another county</option>
+                    <option value="acknowledgment">Both parents signed an Acknowledgment of Paternity (hospital program)</option>
+                    <option value="married">Parties were legally married when child was born, conceived, or adopted</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Current Child Support Status (Page 11, Item 7)</div>
+            <div class="form-group">
+                <label>Is there currently NO child support order in place?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn selected-yes" data-field="no_current_order" data-value="yes">Yes, no order yet</button>
+                    <button type="button" class="yes-no-btn" data-field="no_current_order" data-value="no">No, there is an order</button>
+                </div>
+                <input type="hidden" name="no_current_order" value="yes">
+            </div>
+
+            <div class="form-group">
+                <label>Has either party made voluntary/direct support payments that should be taken into account?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn" data-field="voluntary_payments" data-value="yes">Yes</button>
+                    <button type="button" class="yes-no-btn selected-no" data-field="voluntary_payments" data-value="no">No</button>
+                </div>
+                <input type="hidden" name="voluntary_payments" value="no">
+            </div>
+        </div>
+
+        <div class="subsection">
+            <div class="subsection-title">Tax Exemption — Current on Support Requirement</div>
+            <div class="form-group">
+                <label>Should the tax exemption only be claimable if the claiming party is current on all support and arrears?</label>
+                <div class="yes-no-group">
+                    <button type="button" class="yes-no-btn selected-yes" data-field="tax_conditional" data-value="yes">Yes, only if current</button>
+                    <button type="button" class="yes-no-btn" data-field="tax_conditional" data-value="no">No, unconditional</button>
+                </div>
+                <input type="hidden" name="tax_conditional" value="yes">
+            </div>
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Review Summary &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 11: REVIEW & SUBMIT
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step11">
+        <div class="section-title">
+            <span class="section-number">11</span>
+            Review & Generate Documents
+        </div>
+        <p class="section-description">
+            Review the information below. Click any section to go back and edit.
+            When everything looks correct, click "Generate Documents" to create the filled PDFs.
+        </p>
+
+        <div id="reviewContent">
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="info-box warning" style="margin-top: 1.5rem;">
+            <strong>Before generating:</strong> Please review all information above carefully.
+            The generated PDF will be pre-filled with these values. You can still edit the
+            PDF after generation, but it's easier to fix data here first.
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-success" onclick="submitForm()">Generate Documents</button>
+        </div>
+    </div>
+
+    </form>
+</div>
+
+<!-- Loading Overlay -->
+<div class="spinner-overlay" id="loadingOverlay">
+    <div class="spinner-card">
+        <div class="spinner"></div>
+        <div style="font-size: 1.1rem; font-weight: 600; color: var(--primary);">Generating Documents...</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Filling PDF form fields and creating validation report</div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="spinner-overlay" id="successOverlay">
+    <div class="spinner-card" style="max-width: 550px;">
+        <img src="/static/themis-logo.png" alt="Themis Court Path" style="height: 64px; margin-bottom: 1rem;">
+        <h2 style="color: var(--success); margin-bottom: 0.5rem;">Documents Generated</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;" id="fieldsFilledCount"></p>
+
+        <ul class="download-list" id="downloadLinks">
+            <!-- Populated by JavaScript -->
+        </ul>
+
+        <div class="info-box warning" style="text-align: left; margin-top: 1rem;">
+            <strong>Before filing — the petitioner must:</strong>
+            <ol style="margin-top: 0.5rem; padding-left: 1.2rem; font-size: 0.85rem;">
+                <li>Review ALL filled fields for accuracy</li>
+                <li>Complete the Parent's Worksheet with income data</li>
+                <li>Sign and date the Petition</li>
+                <li>File with the Clerk of Court</li>
+            </ol>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
+            <a href="/" class="btn btn-secondary" style="text-decoration: none;">New Intake</a>
+        </div>
+    </div>
+</div>
+
+<footer class="app-footer">
+    <div class="footer-brand">
+        <img src="/static/athena-logo.png" alt="Athena Intelligence">
+        <span>Themis Court Path &mdash; a Division of Athena Intelligence</span>
+    </div>
+    <div class="footer-text">Atlas Systems Group &bull; Confidential Legal Document Preparation Software</div>
+</footer>
+
+<script src="/static/js/intake.js"></script>
+</body>
+</html>
