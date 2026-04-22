@@ -1316,28 +1316,24 @@ function showSuccess(result) {
     const links = document.getElementById('downloadLinks');
     let html = '';
 
+    // TCP-WO-202: server returns full download URLs.
+    // Documents are regenerated in memory on each download request.
     if (result.pdf_editable) {
         html += `<li>
             <span>Editable Petition PDF</span>
-            <a href="/api/download/${encodeURIComponent(result.pdf_editable)}" target="_blank">Download</a>
+            <a href="${result.pdf_editable}" target="_blank">Download</a>
         </li>`;
     }
     if (result.pdf_filled) {
         html += `<li>
             <span>Filled Petition PDF</span>
-            <a href="/api/download/${encodeURIComponent(result.pdf_filled)}" target="_blank">Download</a>
+            <a href="${result.pdf_filled}" target="_blank">Download</a>
         </li>`;
     }
     if (result.validation) {
         html += `<li>
             <span>Validation Report</span>
-            <a href="/api/download/${encodeURIComponent(result.validation)}" target="_blank">Download</a>
-        </li>`;
-    }
-    if (result.json_file) {
-        html += `<li>
-            <span>Intake Data (JSON)</span>
-            <a href="/api/download/${encodeURIComponent(result.json_file)}" target="_blank">Download</a>
+            <a href="${result.validation}" target="_blank">Download</a>
         </li>`;
     }
 

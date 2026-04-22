@@ -6,14 +6,17 @@ Child Support Petition intake and PDF filling process.
 
 TCP-WO-200 (Auth System) integrated:
 - /api/submit and /api/download require an authenticated session
-- Intake JSON is not persisted as plaintext
 
 TCP-WO-201A (Encrypted Storage) integrated:
 - Intake data is encrypted with Fernet before persistence
 - Filings are owned by user_id; cross-user reads are rejected
-- Generated PDFs land in an ephemeral OUTPUT_DIR for immediate download
-  (PDF-at-rest encryption is out of scope for this WO and noted in
-  the deliverable as a follow-up item)
+
+TCP-WO-202 (Secure Document Handling) integrated:
+- PDFs and validation notes are NEVER written to disk
+- /api/submit returns filing_id + download URLs
+- /api/download/<filing_id>/<doc_type> regenerates documents in memory
+  on each request from the encrypted intake source-of-truth
+- No OUTPUT_DIR; no temp files; no plaintext document persistence
 
 Usage: python app.py
 Then open http://localhost:5000 in Chrome.
@@ -21,15 +24,16 @@ Then open http://localhost:5000 in Chrome.
 
 import os
 from datetime import datetime, timedelta
+from io import BytesIO
 
 import fitz  # PyMuPDF
 from flask import (
     Flask, render_template, request, jsonify,
-    send_file, session, redirect, url_for
+    send_file, session, redirect, url_for, abort
 )
 
 from auth import auth_bp, init_db as init_auth_db, close_db, login_required
-from storage import init_db as init_storage_db, save_filing
+from storage import init_db as init_storage_db, save_filing, load_filing
 
 app = Flask(__name__)
 
@@ -51,20 +55,16 @@ app.config.update(
 # ── Configuration ─────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# OUTPUT_DIR: /tmp in production (Cloud Run ephemeral), local dir in dev.
-# This holds generated PDFs for immediate download. It is NOT a database.
-# Phase 0 / TCP-WO-200: intake data is NEVER persisted to disk.
-# Phase 1 / TCP-WO-201: encrypted Cloud Storage will replace local disk.
-OUTPUT_DIR = "/tmp/themis_output" if _IS_PROD else os.path.join(BASE_DIR, "output")
-
 # Source PDF — bundled into the container image in production,
 # resolved from a configurable env var, with a sensible dev fallback.
+# Read-only at runtime; never modified.
 SOURCE_PDF = os.environ.get(
     "SOURCE_PDF",
     os.path.join(BASE_DIR, "Petition_to_Establish_Child_Support.pdf"),
 )
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+# Doc types that /api/download can serve. Keep this small and explicit.
+_VALID_DOC_TYPES = {"editable", "filled", "validation"}
 
 # ── Auth blueprint + DB lifecycle ─────────────────────────
 app.register_blueprint(auth_bp)
@@ -95,8 +95,11 @@ def intake():
 def submit_intake():
     """
     Receive the completed intake JSON, encrypt and persist it under
-    the authenticated user's id, then fill the PDFs and return
-    download links plus the new filing_id.
+    the authenticated user's id, validate that PDF generation succeeds
+    in memory, and return the filing_id plus download URLs.
+
+    TCP-WO-202: nothing is written to disk. PDFs are regenerated in
+    memory on demand via /api/download/<filing_id>/<doc_type>.
     """
     data = request.get_json(silent=True)
     if not data:
@@ -112,49 +115,116 @@ def submit_intake():
     data["form"] = "Navajo County Petition to Establish Child Support"
     data["_user_id"] = user_id
 
-    # Encrypt and persist BEFORE generating PDFs. If save fails, abort.
+    # Encrypt and persist as the source of truth. PDFs are regenerated
+    # on demand from this — they are not the persistence layer.
     try:
         filing_id = save_filing(user_id, data)
-    except Exception as e:
-        # Do not echo the exception text to the client — could leak detail.
+    except Exception:
         app.logger.exception("save_filing failed")
         return jsonify({"error": "Could not save filing"}), 500
 
-    # Build a filename base from party names for the generated PDF.
+    # Smoke-validate that PDF generation succeeds in memory.
+    # Bytes are discarded immediately — nothing written to disk.
+    try:
+        smoke = fill_petition_pdf(data)
+    except Exception:
+        app.logger.exception("PDF smoke generation failed")
+        return jsonify({"error": "Filing saved but document generation failed"}), 500
+
+    fields_filled = smoke.get("count", 0)
+    warnings = smoke.get("warnings", [])
+    # Drop the bytes immediately; download endpoint regenerates as needed.
+    smoke = None
+
+    # Build a friendly filename base for the eventual download attachment.
     pet_last = data.get("petitioner", {}).get("last_name", "Unknown").replace(" ", "_")
     resp_last = data.get("respondent", {}).get("last_name", "Unknown").replace(" ", "_")
     child_first = data.get("child", {}).get("first_name", "Child").replace(" ", "_")
     base_name = f"{pet_last}_vs_{resp_last}_{child_first}"
 
-    # Generate the filled PDFs (and validation note) into OUTPUT_DIR.
-    # NOTE: intake JSON is not written to disk; only encrypted ciphertext
-    # is persisted in the SQLite filings table via save_filing() above.
-    # Generated PDFs are still written to OUTPUT_DIR (ephemeral /tmp in
-    # production); PDF-at-rest encryption is out of scope for TCP-WO-201A.
-    result = fill_petition_pdf(data, base_name)
-
     return jsonify({
         "success": True,
         "filing_id": filing_id,
         "base_name": base_name,
-        "pdf_editable": result.get("editable"),
-        "pdf_filled": result.get("filled"),
-        "validation": result.get("validation"),
-        "fields_filled": result.get("count", 0),
-        "warnings": result.get("warnings", []),
+        "pdf_editable": f"/api/download/{filing_id}/editable",
+        "pdf_filled":   f"/api/download/{filing_id}/filled",
+        "validation":   f"/api/download/{filing_id}/validation",
+        "fields_filled": fields_filled,
+        "warnings": warnings,
     })
 
 
-@app.route("/api/download/<filename>")
+@app.route("/api/download/<filing_id>/<doc_type>")
 @login_required
-def download_file(filename):
-    """Serve a generated file for download. Auth required."""
-    # Sanitize filename to prevent directory traversal
-    safe_name = os.path.basename(filename)
-    filepath = os.path.join(OUTPUT_DIR, safe_name)
-    if not os.path.exists(filepath):
-        return jsonify({"error": "File not found"}), 404
-    return send_file(filepath, as_attachment=True)
+def download_file(filing_id, doc_type):
+    """
+    Regenerate a document in memory from the encrypted intake and stream
+    it to the authenticated owner. Nothing is written to disk; the
+    BytesIO buffer is GC'd at request end.
+
+    TCP-WO-202: this endpoint replaces the prior filename-based one.
+    It is the only path through which generated documents leave the app.
+    """
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Authentication required"}), 401
+
+    if doc_type not in _VALID_DOC_TYPES:
+        # Generic 404 — do not leak which doc_types exist.
+        abort(404)
+
+    # Load+decrypt the source-of-truth intake. This raises LookupError
+    # for both not-found and wrong-owner — same message in both cases.
+    try:
+        data = load_filing(filing_id, user_id)
+    except (LookupError, ValueError):
+        abort(404)
+    except Exception:
+        app.logger.exception("load_filing failed")
+        return jsonify({"error": "Could not load filing"}), 500
+
+    # Regenerate in memory.
+    try:
+        result = fill_petition_pdf(data)
+    except Exception:
+        app.logger.exception("PDF regeneration failed")
+        return jsonify({"error": "Document generation failed"}), 500
+
+    pet_last = data.get("petitioner", {}).get("last_name", "Unknown").replace(" ", "_")
+    resp_last = data.get("respondent", {}).get("last_name", "Unknown").replace(" ", "_")
+    child_first = data.get("child", {}).get("first_name", "Child").replace(" ", "_")
+    base_name = f"{pet_last}_vs_{resp_last}_{child_first}"
+
+    if doc_type == "editable":
+        payload = result.get("editable_bytes")
+        if not payload:
+            abort(500)
+        return send_file(
+            BytesIO(payload),
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=f"{base_name}_COMPLETE_EDITABLE.pdf",
+        )
+
+    if doc_type == "filled":
+        payload = result.get("filled_bytes")
+        if not payload:
+            abort(500)
+        return send_file(
+            BytesIO(payload),
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=f"{base_name}_COMPLETE_FILLED.pdf",
+        )
+
+    # validation
+    text = result.get("validation_text") or ""
+    return send_file(
+        BytesIO(text.encode("utf-8")),
+        mimetype="text/plain; charset=utf-8",
+        as_attachment=True,
+        download_name=f"{base_name}_Validation.txt",
+    )
 
 
 @app.route("/success")
@@ -1078,24 +1148,25 @@ def fill_worksheet_pages(doc, data):
     return filled
 
 
-def fill_petition_pdf(data, base_name):
-    """Fill the Petition PDF with intake data, including worksheet overlays."""
+def fill_petition_pdf(data):
+    """
+    Fill the Petition PDF with intake data, in memory only.
+    Returns dict with PDF bytes and validation string. No disk writes.
+
+    TCP-WO-202: all output is held in memory and returned to the caller.
+    """
     warnings = []
 
     if not os.path.exists(SOURCE_PDF):
         return {
-            "editable": None,
-            "filled": None,
-            "validation": None,
+            "editable_bytes": None,
+            "filled_bytes": None,
+            "validation_text": None,
             "count": 0,
             "warnings": [f"Source PDF not found at: {SOURCE_PDF}"]
         }
 
     text_fields, checkboxes, checkboxes_uncheck, radio_selections = build_field_maps(data)
-
-    editable_path = os.path.join(OUTPUT_DIR, f"{base_name}_COMPLETE_EDITABLE.pdf")
-    filled_path = os.path.join(OUTPUT_DIR, f"{base_name}_COMPLETE_FILLED.pdf")
-    validation_path = os.path.join(OUTPUT_DIR, f"{base_name}_Validation.txt")
 
     filled_fields = []
 
@@ -1154,32 +1225,35 @@ def fill_petition_pdf(data, base_name):
         if track_fields:
             filled_fields.extend(ws_filled)
 
-    # Fill editable version
+    # Fill editable version (with field tracking) -> bytes
     doc = fitz.open(SOURCE_PDF)
     _fill_doc(doc, track_fields=True)
-    doc.save(editable_path)
+    editable_bytes = doc.tobytes()
     doc.close()
 
-    # Fill second copy
+    # Fill second copy (no tracking) -> bytes
     doc2 = fitz.open(SOURCE_PDF)
     _fill_doc(doc2, track_fields=False)
-    doc2.save(filled_path)
+    filled_bytes = doc2.tobytes()
     doc2.close()
 
-    # Generate validation
-    generate_validation(data, filled_fields, validation_path)
+    # Generate validation text in memory
+    validation_text = generate_validation(data, filled_fields)
 
     return {
-        "editable": os.path.basename(editable_path),
-        "filled": os.path.basename(filled_path),
-        "validation": os.path.basename(validation_path),
+        "editable_bytes": editable_bytes,
+        "filled_bytes": filled_bytes,
+        "validation_text": validation_text,
         "count": len(filled_fields),
         "warnings": warnings,
     }
 
 
-def generate_validation(data, filled_fields, filepath):
-    """Write a validation note text file."""
+def generate_validation(data, filled_fields):
+    """
+    Build a validation note string. TCP-WO-202: returns text only,
+    never writes to disk.
+    """
     pet = data.get("petitioner", {})
     resp = data.get("respondent", {})
     child = data.get("child", {})
@@ -1189,7 +1263,7 @@ def generate_validation(data, filled_fields, filepath):
     v.append("=" * 70)
     v.append("VALIDATION NOTE")
     v.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    v.append("Generated by: Child Support Intake Web Application")
+    v.append("Generated by: Themis Court Path - themiscourtpath.com")
     v.append("=" * 70)
     v.append("")
     v.append("CASE:")
@@ -1229,7 +1303,7 @@ def generate_validation(data, filled_fields, filepath):
         v.append(f"  pg{pg:2d} | {fname:55s} | {display_val}")
     v.append("")
     v.append("-" * 70)
-    v.append("BEFORE FILING — PETITIONER MUST:")
+    v.append("BEFORE FILING - PETITIONER MUST:")
     v.append("-" * 70)
     v.append("  1. Review ALL filled fields for accuracy")
     v.append("  2. Complete Parent's Worksheet with income data")
@@ -1242,8 +1316,7 @@ def generate_validation(data, filled_fields, filepath):
     v.append("END OF VALIDATION NOTE")
     v.append("=" * 70)
 
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write("\n".join(v))
+    return "\n".join(v)
 
 
 # ── Run ───────────────────────────────────────────────────
