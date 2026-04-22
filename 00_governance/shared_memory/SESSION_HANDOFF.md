@@ -170,6 +170,30 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-22 11:35 MST - SESSION HANDOFF
+
+Actor: Claude
+
+Completed:
+- TCP-WO-153 - Procedural Discipline Hardening
+- Acknowledged seven discipline rules
+- Returned three deliverables (acknowledgement, compliance confirmation, behavior change statement)
+
+Changed:
+- 00_governance/shared_memory/SESSION_HANDOFF.md (this entry appended; only field touched in this commit per Rule 2)
+
+Decisions:
+- (none - no decisions made; all rules dictated by WO)
+
+Open Issues:
+- Question raised for Sam: Rule 4 says WO must be READY in NEXT_ACTIONS before execution. Recent practice has been direct chat issuance. Awaiting Sam's choice between (a) strict pre-listing or (b) permissive direct issuance. Defaulted to (b) until told otherwise.
+
+Next Recommended Action:
+- Sam clarifies the Rule 4 NEXT_ACTIONS-listing question
+- Sam reviews TCP-WO-202 (commit bf7dc27) and issues formal disposition WO if approval intended
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF
