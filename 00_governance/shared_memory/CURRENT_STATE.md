@@ -59,7 +59,8 @@ IN PROGRESS
 | Public repo hygiene | GOOD |
 | Plaintext PII in repo | NOT DETECTED |
 | Auth in codebase | COMPLETE - TCP-WO-200 APPROVED WITH CORRECTIONS |
-| Encrypted persistence | IMPLEMENTED IN TCP-WO-201A (Fernet, intake JSON only; PDFs and Phase-1 KMS deferred) |
+| Encrypted persistence | IMPLEMENTED (TCP-WO-201A APPROVED W/ CORRECTIONS; intake JSON via Fernet) |
+| Plaintext document storage | ELIMINATED IN TCP-WO-202 (PDFs in-memory only; no disk writes) |
 | Audit logging | NOT IMPLEMENTED |
 | RBAC | NOT IMPLEMENTED |
 | RLS | NOT IMPLEMENTED |
@@ -102,7 +103,8 @@ Current system is not yet safe for scaled production use with real paying users.
 - TCP-WO-151A completed (commit 5ac4062) - shared memory files created in repo
 - TCP-WO-150 COMPLETE - shared memory integrated into Claude execution workflow
 - TCP-WO-152 COMPLETE - TCP-WO-200 disposition applied; TCP-WO-201 unblocked
-- TCP-WO-201A COMPLETE - encrypted storage layer implemented (commit 1878eab); pending Sam review
+- TCP-WO-201A COMPLETE - encrypted storage layer implemented (commit 1878eab); APPROVED WITH MINOR FOLLOW-UP WORK
+- TCP-WO-202 COMPLETE - secure document handling implemented (commit bf7dc27); pending Sam review
 
 ---
 

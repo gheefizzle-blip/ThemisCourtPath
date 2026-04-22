@@ -66,7 +66,12 @@ Notes:
 ### TCP-WO-201
 Status: COMPLETE
 Reason:
-- Issued and executed as TCP-WO-201A (commit 1878eab); pending Sam review
+- Issued and executed as TCP-WO-201A (commit 1878eab); APPROVED WITH MINOR FOLLOW-UP WORK
+
+### TCP-WO-202
+Status: COMPLETE
+Reason:
+- Secure document handling implemented (commit bf7dc27); pending Sam review
 
 ### Payment work
 Status: BLOCKED

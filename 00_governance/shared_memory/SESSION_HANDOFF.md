@@ -140,6 +140,36 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-22 11:21 MST - SESSION HANDOFF
+
+Actor: Claude
+
+Completed:
+- TCP-WO-201A disposition applied (informally, via inline relay): APPROVED WITH MINOR FOLLOW-UP WORK
+- TCP-WO-202 - Secure Document Handling (commit bf7dc27)
+- Pre-execution memory load completed
+- 10-step E2E test passed (register, submit, post-submit filesystem scan, all 3 downloads, post-download filesystem scan, cross-user denied, anon denied, invalid doc_type denied)
+
+Changed:
+- 01_APPLICATION/app.py (MOD - fill_petition_pdf returns bytes; generate_validation returns string; /api/submit returns download URLs; /api/download/<filing_id>/<doc_type> regenerates in memory; OUTPUT_DIR removed)
+- 01_APPLICATION/static/js/intake.js (MOD - uses returned URLs directly; removed dead json_file branch)
+
+Decisions:
+- (none - no architectural decisions made by Claude; design followed WO spec)
+
+Open Issues:
+- THEMIS_ENCRYPTION_KEY still not set in Cloud Run env (carried from prior; required before any real user data flows through prod)
+- Trigger protocol (TCP-WO-160) and n8n notification (TCP-WO-161) still pending Sam
+- TCP-WO-200 corrections still queued: SQLite Phase 0 limitation, CSRF, auth rate limiting, app file consolidation, gcr.io/Artifact Registry alignment
+- Per-tenant KMS keys per TCP-ARCH-001 Section 7 still deferred
+- Payment gating (Milestone 1 final requirement) still NOT IMPLEMENTED
+
+Next Recommended Action:
+- Sam reviews TCP-WO-202 (commit bf7dc27) and issues disposition
+- After approval: pivot to TCP-WO-160 (trigger protocol) or payment gating to complete Milestone 1
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF
