@@ -63,7 +63,12 @@ def _get_db_path() -> str:
 
 
 def init_db() -> None:
-    """Create the filings table if it does not exist. Idempotent."""
+    """Create the filings table if it does not exist. Idempotent.
+
+    TCP-WO-300: filings table extended with payment_status and
+    stripe_session_id columns. Migration is additive and safe to
+    re-run on an existing database.
+    """
     conn = sqlite3.connect(_get_db_path())
     try:
         conn.execute(
@@ -72,13 +77,23 @@ def init_db() -> None:
                 id                TEXT PRIMARY KEY,
                 user_id           TEXT NOT NULL,
                 encrypted_payload TEXT NOT NULL,
-                created_at        TEXT NOT NULL
+                created_at        TEXT NOT NULL,
+                payment_status    TEXT NOT NULL DEFAULT 'pending',
+                stripe_session_id TEXT
             )
             """
         )
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_filings_user ON filings(user_id, created_at DESC)"
         )
+        # Additive migration for pre-WO-300 databases.
+        existing_cols = {r[1] for r in conn.execute("PRAGMA table_info(filings)").fetchall()}
+        if "payment_status" not in existing_cols:
+            conn.execute(
+                "ALTER TABLE filings ADD COLUMN payment_status TEXT NOT NULL DEFAULT 'pending'"
+            )
+        if "stripe_session_id" not in existing_cols:
+            conn.execute("ALTER TABLE filings ADD COLUMN stripe_session_id TEXT")
         conn.commit()
     finally:
         conn.close()
@@ -171,3 +186,103 @@ def list_user_filings(user_id: str) -> list:
     finally:
         conn.close()
     return [{"id": r["id"], "created_at": r["created_at"]} for r in rows]
+
+
+# ── Payment status (TCP-WO-300) ─────────────────────────────
+
+VALID_PAYMENT_STATUSES = ("pending", "paid", "failed")
+
+
+def get_payment_status(filing_id: str, user_id: str) -> str:
+    """Return 'pending'|'paid'|'failed' for a user's filing.
+
+    Raises LookupError when filing is missing OR owned by a different
+    user — same error in both cases (no existence leak).
+    """
+    if not filing_id or not isinstance(filing_id, str):
+        raise ValueError("filing_id required")
+    if not user_id or not isinstance(user_id, str):
+        raise ValueError("user_id required")
+
+    conn = sqlite3.connect(_get_db_path())
+    conn.row_factory = sqlite3.Row
+    try:
+        row = conn.execute(
+            "SELECT user_id, payment_status FROM filings WHERE id = ?",
+            (filing_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+
+    if row is None or row["user_id"] != user_id:
+        raise LookupError("filing not found")
+    return row["payment_status"] or "pending"
+
+
+def set_stripe_session(filing_id: str, user_id: str, session_id: str) -> None:
+    """Attach a Stripe checkout session id to a filing owned by user_id."""
+    if not filing_id or not user_id or not session_id:
+        raise ValueError("filing_id, user_id, session_id all required")
+
+    conn = sqlite3.connect(_get_db_path())
+    try:
+        cur = conn.execute(
+            "UPDATE filings SET stripe_session_id = ? "
+            "WHERE id = ? AND user_id = ?",
+            (session_id, filing_id, user_id),
+        )
+        conn.commit()
+        if cur.rowcount == 0:
+            raise LookupError("filing not found")
+    finally:
+        conn.close()
+
+
+def mark_payment_status(filing_id: str, user_id: str, status: str) -> None:
+    """Set payment_status for a user's filing. Status must be in VALID_PAYMENT_STATUSES."""
+    if status not in VALID_PAYMENT_STATUSES:
+        raise ValueError(f"invalid payment status: {status!r}")
+    if not filing_id or not user_id:
+        raise ValueError("filing_id and user_id required")
+
+    conn = sqlite3.connect(_get_db_path())
+    try:
+        cur = conn.execute(
+            "UPDATE filings SET payment_status = ? "
+            "WHERE id = ? AND user_id = ?",
+            (status, filing_id, user_id),
+        )
+        conn.commit()
+        if cur.rowcount == 0:
+            raise LookupError("filing not found")
+    finally:
+        conn.close()
+
+
+def lookup_filing_by_session(session_id: str) -> dict | None:
+    """Return {filing_id, user_id, payment_status} for a Stripe session, or None.
+
+    Used at /success to identify the filing from a returned session_id
+    BEFORE we know which user is logged in (we then verify the logged-in
+    user matches).
+    """
+    if not session_id or not isinstance(session_id, str):
+        return None
+
+    conn = sqlite3.connect(_get_db_path())
+    conn.row_factory = sqlite3.Row
+    try:
+        row = conn.execute(
+            "SELECT id, user_id, payment_status FROM filings "
+            "WHERE stripe_session_id = ?",
+            (session_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+    if row is None:
+        return None
+    return {
+        "filing_id": row["id"],
+        "user_id": row["user_id"],
+        "payment_status": row["payment_status"] or "pending",
+    }

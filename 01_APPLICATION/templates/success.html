@@ -3,8 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documents Generated — Child Support Intake</title>
+    <title>Documents Ready — Themis Court Path</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .download-list { list-style: none; margin: 1.5rem 0; padding: 0; }
+        .download-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 0.6rem;
+            background: var(--white);
+        }
+        .download-list a {
+            color: var(--white);
+            background: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .download-list a:hover { background: var(--primary-light); }
+        .info-banner {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.25rem;
+            font-size: 0.95rem;
+        }
+        .info-banner.success { background: var(--success-bg); color: var(--success); }
+        .info-banner.warning { background: var(--warning-bg); color: var(--warning); }
+        .info-banner.error   { background: var(--error-bg);   color: var(--error); }
+    </style>
 </head>
 <body>
 
@@ -13,28 +45,83 @@
         <div style="display: flex; align-items: center; gap: 1rem;">
             <img src="/static/themis-logo.png" alt="Themis Court Path" class="header-logo">
             <div>
-                <h1>Child Support Petition — Complete</h1>
-                <div class="header-subtitle">Navajo County Superior Court &bull; Themis Court Path</div>
+                <h1>Themis Court Path</h1>
+                <div class="header-subtitle">Your guided path through the court system</div>
             </div>
         </div>
-        <span class="header-badge">Arizona</span>
+        <a href="/auth/logout" style="color: rgba(255,255,255,0.9); font-size: 0.85rem; text-decoration: none;">Sign out</a>
     </div>
 </header>
 
 <div class="main-content">
     <div class="form-card success-card">
-        <div class="success-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-        </div>
-        <h2 style="color: var(--success);">Documents Generated Successfully</h2>
-        <p style="color: var(--text-muted); margin-top: 0.5rem;">
-            Check the output folder for your completed documents.
-        </p>
-        <div style="margin-top: 2rem;">
-            <a href="/" class="btn btn-primary" style="text-decoration: none;">Start New Intake</a>
-        </div>
+
+        {% if error %}
+            <div class="info-banner error">
+                <strong>We hit a snag:</strong> {{ error }}
+            </div>
+            <p>If you completed payment, please contact support@themiscourtpath.com with your session id.</p>
+            <div style="margin-top: 1.5rem;">
+                <a href="/" class="btn btn-primary" style="text-decoration: none;">Return Home</a>
+            </div>
+
+        {% elif download_links %}
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h2 style="color: var(--success);">Payment received &mdash; documents unlocked</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                Your documents are ready to download. Each link regenerates the file in memory; nothing is stored on our servers.
+            </p>
+
+            <ul class="download-list">
+                <li>
+                    <span><strong>Editable Petition PDF</strong><br>
+                          <small style="color: var(--text-muted);">For final review before filing</small></span>
+                    <a href="{{ download_links.pdf_editable }}">Download</a>
+                </li>
+                <li>
+                    <span><strong>Court-Ready Filled PDF</strong><br>
+                          <small style="color: var(--text-muted);">Print and file with the clerk</small></span>
+                    <a href="{{ download_links.pdf_filled }}">Download</a>
+                </li>
+                <li>
+                    <span><strong>Validation Report</strong><br>
+                          <small style="color: var(--text-muted);">Field-by-field log for your records</small></span>
+                    <a href="{{ download_links.validation }}">Download</a>
+                </li>
+            </ul>
+
+            <div style="margin-top: 1.5rem;">
+                <a href="/" class="btn" style="text-decoration: none; background: var(--white); color: var(--primary); border: 1px solid var(--primary);">Start a New Filing</a>
+            </div>
+
+        {% elif has_session %}
+            <div class="info-banner warning">
+                <strong>Payment status:</strong> {{ payment_state or "unknown" }}.
+            </div>
+            <p>Your payment has not been confirmed yet. If you completed checkout, refresh this page in a moment, or contact support if the problem persists.</p>
+            <div style="margin-top: 1.5rem;">
+                <a href="/" class="btn btn-primary" style="text-decoration: none;">Return Home</a>
+            </div>
+
+        {% else %}
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h2 style="color: var(--success);">Filing saved</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                Your intake has been securely stored. Return to your filing to complete payment and download documents.
+            </p>
+            <div style="margin-top: 1.5rem;">
+                <a href="/intake" class="btn btn-primary" style="text-decoration: none;">Back to Intake</a>
+            </div>
+        {% endif %}
+
     </div>
 </div>
 

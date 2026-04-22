@@ -18,6 +18,11 @@ TCP-WO-202 (Secure Document Handling) integrated:
   on each request from the encrypted intake source-of-truth
 - No OUTPUT_DIR; no temp files; no plaintext document persistence
 
+TCP-WO-300 (Stripe Payment Gating) integrated:
+- POST /api/create-checkout-session creates a Stripe session for a filing
+- /success verifies the returned session and marks filing as paid
+- /api/download is gated: returns 403 if payment_status != 'paid'
+
 Usage: python app.py
 Then open http://localhost:5000 in Chrome.
 """
@@ -33,7 +38,13 @@ from flask import (
 )
 
 from auth import auth_bp, init_db as init_auth_db, close_db, login_required
-from storage import init_db as init_storage_db, save_filing, load_filing
+from storage import (
+    init_db as init_storage_db,
+    save_filing, load_filing,
+    get_payment_status, set_stripe_session, mark_payment_status,
+    lookup_filing_by_session,
+)
+import payments
 
 app = Flask(__name__)
 
@@ -73,6 +84,10 @@ app.teardown_appcontext(close_db)
 with app.app_context():
     init_auth_db()
     init_storage_db()
+
+# Stripe init: warns if STRIPE_SECRET_KEY missing; payment endpoints
+# return 503 until configured. Does NOT block app startup.
+payments.init_stripe()
 
 
 # ── Routes ────────────────────────────────────────────────
@@ -163,7 +178,7 @@ def download_file(filing_id, doc_type):
     BytesIO buffer is GC'd at request end.
 
     TCP-WO-202: this endpoint replaces the prior filename-based one.
-    It is the only path through which generated documents leave the app.
+    TCP-WO-300: this endpoint is gated on payment_status == 'paid'.
     """
     user_id = session.get("user_id")
     if not user_id:
@@ -172,6 +187,15 @@ def download_file(filing_id, doc_type):
     if doc_type not in _VALID_DOC_TYPES:
         # Generic 404 — do not leak which doc_types exist.
         abort(404)
+
+    # TCP-WO-300: gate on payment status. Cross-user lookups raise
+    # LookupError → 404 (no existence leak).
+    try:
+        pay_status = get_payment_status(filing_id, user_id)
+    except (LookupError, ValueError):
+        abort(404)
+    if pay_status != "paid":
+        return jsonify({"error": "Payment required", "payment_status": pay_status}), 403
 
     # Load+decrypt the source-of-truth intake. This raises LookupError
     # for both not-found and wrong-owner — same message in both cases.
@@ -227,11 +251,113 @@ def download_file(filing_id, doc_type):
     )
 
 
+@app.route("/api/create-checkout-session", methods=["POST"])
+@login_required
+def create_checkout_session():
+    """
+    TCP-WO-300: create a Stripe Checkout session for the authenticated
+    user's filing and return its URL. The browser then redirects to
+    Stripe-hosted checkout.
+    """
+    if not payments.is_configured():
+        return jsonify({"error": "Payments not configured"}), 503
+
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Authentication required"}), 401
+
+    body = request.get_json(silent=True) or {}
+    filing_id = body.get("filing_id")
+    if not filing_id:
+        return jsonify({"error": "filing_id required"}), 400
+
+    # Verify the user owns this filing. Cross-user → 404 (no leak).
+    try:
+        get_payment_status(filing_id, user_id)
+    except (LookupError, ValueError):
+        abort(404)
+
+    # Build URLs for Stripe to redirect back to.
+    success_url = url_for("success", _external=True) + "?session_id={CHECKOUT_SESSION_ID}"
+    cancel_url = url_for("intake", _external=True)
+
+    try:
+        result = payments.create_checkout_session(
+            filing_id=filing_id,
+            user_id=user_id,
+            success_url=success_url,
+            cancel_url=cancel_url,
+        )
+    except Exception:
+        app.logger.exception("Stripe session creation failed")
+        return jsonify({"error": "Could not create payment session"}), 502
+
+    # Persist session_id BEFORE returning so /success can correlate it
+    # back to the filing even if the redirect arrives before the user's
+    # browser sees the response.
+    try:
+        set_stripe_session(filing_id, user_id, result["session_id"])
+    except Exception:
+        app.logger.exception("set_stripe_session failed")
+        return jsonify({"error": "Could not record payment session"}), 500
+
+    return jsonify({"checkout_url": result["checkout_url"]})
+
+
 @app.route("/success")
 @login_required
 def success():
-    """Success page with download links."""
-    return render_template("success.html")
+    """
+    Success page. If a Stripe session_id is present in the query string,
+    verify the session, mark the filing as paid, and render the page
+    with download links. Otherwise render a generic success view.
+
+    TCP-WO-300: payment confirmation is server-side. The client cannot
+    fake a paid state — we re-fetch the session from Stripe.
+    """
+    user_id = session.get("user_id")
+    session_id = request.args.get("session_id")
+    download_links = None
+    payment_state = None
+    error = None
+
+    if session_id and payments.is_configured():
+        try:
+            verified = payments.verify_payment(session_id)
+        except Exception:
+            app.logger.exception("Stripe verify_payment failed")
+            verified = None
+
+        if verified is None:
+            error = "Could not verify payment session."
+        else:
+            # The session metadata MUST match the filing we have in DB
+            # AND match the currently-logged-in user.
+            session_user = verified.get("user_id")
+            session_filing = verified.get("filing_id")
+            if session_user != user_id:
+                error = "Payment session does not belong to this account."
+            else:
+                payment_state = verified.get("payment_status")
+                if payment_state == "paid":
+                    try:
+                        mark_payment_status(session_filing, user_id, "paid")
+                        download_links = {
+                            "pdf_editable": f"/api/download/{session_filing}/editable",
+                            "pdf_filled":   f"/api/download/{session_filing}/filled",
+                            "validation":   f"/api/download/{session_filing}/validation",
+                        }
+                    except Exception:
+                        app.logger.exception("mark_payment_status failed")
+                        error = "Payment verified but could not unlock download."
+
+    return render_template(
+        "success.html",
+        download_links=download_links,
+        payment_state=payment_state,
+        error=error,
+        has_session=bool(session_id),
+    )
 
 
 # ── PDF Filling Engine ────────────────────────────────────

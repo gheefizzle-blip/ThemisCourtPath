@@ -1316,24 +1316,21 @@ function showSuccess(result) {
     const links = document.getElementById('downloadLinks');
     let html = '';
 
-    // TCP-WO-202: server returns full download URLs.
-    // Documents are regenerated in memory on each download request.
-    if (result.pdf_editable) {
-        html += `<li>
-            <span>Editable Petition PDF</span>
-            <a href="${result.pdf_editable}" target="_blank">Download</a>
-        </li>`;
-    }
-    if (result.pdf_filled) {
-        html += `<li>
-            <span>Filled Petition PDF</span>
-            <a href="${result.pdf_filled}" target="_blank">Download</a>
-        </li>`;
-    }
-    if (result.validation) {
-        html += `<li>
-            <span>Validation Report</span>
-            <a href="${result.validation}" target="_blank">Download</a>
+    // TCP-WO-300: documents are gated behind payment.
+    // Replace direct download links with a single "Pay & Download" CTA.
+    // After payment, /success serves the live download links.
+    if (result.filing_id) {
+        const safeFilingId = String(result.filing_id).replace(/[^a-zA-Z0-9-]/g, '');
+        html += `<li style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
+            <span style="font-weight:600;">Documents are ready and waiting</span>
+            <span style="color:var(--text-muted);font-size:0.9rem;">
+                Pay $99 to unlock your editable PDF, court-ready PDF, and validation report.
+            </span>
+            <button id="payBtn" type="button" class="btn btn-success"
+                    onclick="startCheckout('${safeFilingId}')">
+                Pay $99 &amp; Download Documents
+            </button>
+            <span id="payErr" style="color:var(--error);font-size:0.85rem;"></span>
         </li>`;
     }
 
@@ -1345,4 +1342,31 @@ function showSuccess(result) {
 
     links.innerHTML = html;
     document.getElementById('successOverlay').classList.add('visible');
+}
+
+// TCP-WO-300: kick off Stripe Checkout for the just-saved filing.
+// On success, /success unlocks the downloads.
+async function startCheckout(filingId) {
+    const btn = document.getElementById('payBtn');
+    const err = document.getElementById('payErr');
+    if (btn) { btn.disabled = true; btn.textContent = 'Redirecting to secure checkout...'; }
+    if (err) { err.textContent = ''; }
+    try {
+        const r = await fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({filing_id: filingId}),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok && data.checkout_url) {
+            window.location = data.checkout_url;
+            return;
+        }
+        const msg = data.error || ('Could not start checkout (HTTP ' + r.status + ')');
+        if (err) { err.textContent = msg; }
+        if (btn) { btn.disabled = false; btn.textContent = 'Pay $99 & Download Documents'; }
+    } catch (e) {
+        if (err) { err.textContent = 'Network error. Please try again.'; }
+        if (btn) { btn.disabled = false; btn.textContent = 'Pay $99 & Download Documents'; }
+    }
 }
