@@ -109,3 +109,20 @@ Skipping shared memory and relying on chat continuity alone.
 
 Reason:
 Not durable, not auditable, and not fit for long-running controlled execution.
+
+---
+
+### 2026-04-22
+Decision:
+Execution Authority vs State Authority Model (Option B)
+
+Content:
+Execution Authority = Work Order (chat or repo)
+State Authority = VM (GitHub)
+All execution must eventually be reconciled into VM
+
+Reason:
+Allows fast execution via chat while preserving strict auditability and system integrity
+
+Authority:
+Sam (locked via TCP-WO-154)

@@ -71,7 +71,7 @@ Reason:
 ### TCP-WO-202
 Status: COMPLETE
 Reason:
-- Secure document handling implemented (commit bf7dc27); pending Sam review
+- Secure document handling implemented (commit bf7dc27); APPROVED
 
 ### Payment work
 Status: BLOCKED
