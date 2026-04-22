@@ -307,6 +307,36 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-22 14:36 MST - SESSION HANDOFF
+
+Actor: Claude
+
+Completed:
+- TCP-WO-310 - SiteGround Front-End Deployment Prep (commit 1886a7d)
+- Pre-execution memory load completed
+- 5 deliverables produced (skeletons, sitemap, DNS plan, deployment checklist, CTA routing confirmation)
+
+Changed:
+- 06_MARKETING/PAGE_SKELETONS.md (NEW - 6 page skeletons: Home, How It Works, Pricing, FAQ, Legal, Contact; structured layouts only, not final copy)
+- 05_DEPLOYMENT/SITEGROUND_DEPLOYMENT_PLAN.md (NEW - sitemap, DNS records table, SSL config, 6-phase deployment checklist, performance baseline, authoritative CTA routing table)
+
+Decisions:
+- (none - no architectural decisions made by Claude; design followed WO spec)
+
+Open Issues:
+- This is a planning WO - no code or live deployment yet
+- Site SSL on app.themiscourtpath.com still pending Cloud Run domain mapping completion (carried)
+- Legal pages (Privacy, Terms, Disclaimer) require licensed counsel review before publish (drafts exist in 07_COMPLIANCE)
+- Long-form copy from TCP-WO-011 (in 06_MARKETING/website_copy/) noted as alternative source if Commander prefers fuller pages
+- Logo asset needs web compression (currently 600dpi PNG ~2.7MB; target ~100KB for web)
+- All carryforward items from TCP-WO-300 reconciliation still open (CSRF, env provisioning, webhooks, etc.)
+
+Next Recommended Action:
+- Sam reviews TCP-WO-310 deliverables (commit 1886a7d) and issues disposition
+- Or: Sam scopes the next WO (likely TCP-WO-160 trigger protocol, TCP-WO-161 n8n notifications, OR a hardening sprint covering the 4 TCP-WO-300 corrections, OR Phase A SiteGround provisioning)
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF
