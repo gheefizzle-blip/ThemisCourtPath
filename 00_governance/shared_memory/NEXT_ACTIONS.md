@@ -12,8 +12,9 @@ Purpose:
 - confirm future execution protocol
 
 ### 2. Review TCP-WO-200
-Status: READY
+Status: COMPLETE
 Owner: Sam
+Disposition: APPROVED WITH CORRECTIONS
 Purpose:
 - review Claude's auth implementation
 - issue disposition
@@ -63,9 +64,9 @@ Notes:
 ## Blocked Items
 
 ### TCP-WO-201
-Status: BLOCKED
+Status: READY
 Reason:
-- should not proceed until TCP-WO-200 is reviewed and dispositioned
+- TCP-WO-200 dispositioned APPROVED WITH CORRECTIONS; dependency cleared
 
 ### Payment work
 Status: BLOCKED
