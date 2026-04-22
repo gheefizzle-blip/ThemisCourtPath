@@ -6,10 +6,14 @@ Child Support Petition intake and PDF filling process.
 
 TCP-WO-200 (Auth System) integrated:
 - /api/submit and /api/download require an authenticated session
-- Intake JSON is no longer persisted to disk (TCP-WO-201 will add
-  encrypted persistence)
-- Generated PDFs land in an ephemeral OUTPUT_DIR for immediate
-  download by the requesting user only
+- Intake JSON is not persisted as plaintext
+
+TCP-WO-201A (Encrypted Storage) integrated:
+- Intake data is encrypted with Fernet before persistence
+- Filings are owned by user_id; cross-user reads are rejected
+- Generated PDFs land in an ephemeral OUTPUT_DIR for immediate download
+  (PDF-at-rest encryption is out of scope for this WO and noted in
+  the deliverable as a follow-up item)
 
 Usage: python app.py
 Then open http://localhost:5000 in Chrome.
@@ -24,7 +28,8 @@ from flask import (
     send_file, session, redirect, url_for
 )
 
-from auth import auth_bp, init_db, close_db, login_required
+from auth import auth_bp, init_db as init_auth_db, close_db, login_required
+from storage import init_db as init_storage_db, save_filing
 
 app = Flask(__name__)
 
@@ -66,7 +71,8 @@ app.register_blueprint(auth_bp)
 app.teardown_appcontext(close_db)
 
 with app.app_context():
-    init_db()
+    init_auth_db()
+    init_storage_db()
 
 
 # ── Routes ────────────────────────────────────────────────
@@ -88,18 +94,31 @@ def intake():
 @login_required
 def submit_intake():
     """
-    Receive the completed intake JSON, fill the PDF, and return
-    download links. The intake JSON itself is NOT persisted —
-    encrypted persistence is TCP-WO-201.
+    Receive the completed intake JSON, encrypt and persist it under
+    the authenticated user's id, then fill the PDFs and return
+    download links plus the new filing_id.
     """
     data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "No data received"}), 400
 
-    # Tag with the authenticated user (audit log will consume this in Phase 0)
+    user_id = session.get("user_id")
+    if not user_id:
+        # Belt and suspenders — login_required already enforced this.
+        return jsonify({"error": "Authentication required"}), 401
+
+    # Tag with the authenticated user
     data["generated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
     data["form"] = "Navajo County Petition to Establish Child Support"
-    data["_user_id"] = session.get("user_id")
+    data["_user_id"] = user_id
+
+    # Encrypt and persist BEFORE generating PDFs. If save fails, abort.
+    try:
+        filing_id = save_filing(user_id, data)
+    except Exception as e:
+        # Do not echo the exception text to the client — could leak detail.
+        app.logger.exception("save_filing failed")
+        return jsonify({"error": "Could not save filing"}), 500
 
     # Build a filename base from party names for the generated PDF.
     pet_last = data.get("petitioner", {}).get("last_name", "Unknown").replace(" ", "_")
@@ -108,11 +127,15 @@ def submit_intake():
     base_name = f"{pet_last}_vs_{resp_last}_{child_first}"
 
     # Generate the filled PDFs (and validation note) into OUTPUT_DIR.
-    # No intake JSON is written to disk in Phase 0.
+    # NOTE: intake JSON is not written to disk; only encrypted ciphertext
+    # is persisted in the SQLite filings table via save_filing() above.
+    # Generated PDFs are still written to OUTPUT_DIR (ephemeral /tmp in
+    # production); PDF-at-rest encryption is out of scope for TCP-WO-201A.
     result = fill_petition_pdf(data, base_name)
 
     return jsonify({
         "success": True,
+        "filing_id": filing_id,
         "base_name": base_name,
         "pdf_editable": result.get("editable"),
         "pdf_filled": result.get("filled"),
