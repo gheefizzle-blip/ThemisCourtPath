@@ -264,6 +264,49 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-22 14:08 MST - SESSION HANDOFF
+
+Actor: ChatGPT
+
+Completed:
+- TCP-WO-300 reviewed - Disposition: APPROVED WITH CORRECTIONS
+- VM reconciliation performed via TCP-WO-155
+- Milestone 1 declared FUNCTIONALLY COMPLETE (pending deployment hardening)
+
+Changed:
+- 00_governance/shared_memory/SESSION_HANDOFF.md (this entry appended)
+- 00_governance/shared_memory/CURRENT_STATE.md (Milestone Status updated; TCP-WO-300 + TCP-WO-155 entries added; revenue readiness rows updated to reflect functional completion)
+- 00_governance/shared_memory/NEXT_ACTIONS.md (TCP-WO-300 marked COMPLETE; Payment work marked COMPLETE-functional; new Carry Forward / Hardening section added with the 4 corrections + prior carryovers)
+- 00_governance/shared_memory/DECISION_CONTEXT.md (Milestone 1 Completion Definition decision recorded)
+
+Decisions:
+- TCP-WO-300 disposition: APPROVED WITH CORRECTIONS
+- 4 corrections deferred to future WOs (NOT implemented in this reconciliation):
+  1. CSRF protection required for POST /api/create-checkout-session
+  2. STRIPE_SECRET_KEY must be provisioned in Cloud Run
+  3. THEMIS_ENCRYPTION_KEY must be provisioned in Cloud Run
+  4. Webhook-based async payment confirmation deferred to future WO
+- Milestone 1 completion definition: product-capability completion is separate from deployment hardening
+- Milestone 1 (SAFE TO CHARGE MONEY) is functionally complete - all four required capabilities (auth, encrypted storage, secure documents, payment gating) shipped
+
+Open Issues (carry forward, tracked in NEXT_ACTIONS Carry Forward / Hardening section):
+- CSRF protection on POST endpoints
+- STRIPE_SECRET_KEY env provisioning in Cloud Run
+- THEMIS_ENCRYPTION_KEY env provisioning in Cloud Run
+- Webhook-based async payment confirmation
+- SQLite Phase 0 limit (Phase 1 PostgreSQL planned)
+- Auth rate limiting (TCP-WO-200 carry)
+- app.py vs app_production.py file consolidation (TCP-WO-200 carry)
+- gcr.io vs Artifact Registry path alignment (TCP-WO-200 carry)
+- Per-tenant KMS keys per TCP-ARCH-001 Section 7
+- Trigger protocol (TCP-WO-160) and n8n notification (TCP-WO-161) still pending Sam
+
+Next Recommended Action:
+- Sam scopes the next work order package (likely TCP-WO-160 Trigger Protocol, TCP-WO-161 n8n Notifications, OR a hardening sprint covering the 4 TCP-WO-300 corrections)
+- Commander relays the spec to Claude
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF

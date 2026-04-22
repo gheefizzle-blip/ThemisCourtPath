@@ -9,7 +9,7 @@ Phase 0 - Foundation
 Milestone 1 - SAFE TO CHARGE MONEY
 
 ### Milestone Status
-IN PROGRESS
+FUNCTIONALLY COMPLETE (pending deployment hardening)
 
 ---
 
@@ -78,9 +78,9 @@ Current system is not yet safe for scaled production use with real paying users.
 | Product concept validated | YES |
 | Working proof of concept | YES |
 | Authenticated user flow | COMPLETE |
-| Secure storage | NO |
-| Payment gating | NO |
-| Production readiness | NO |
+| Secure storage | COMPLETE (TCP-WO-201A) |
+| Payment gating | COMPLETE (TCP-WO-300 APPROVED WITH CORRECTIONS) |
+| Production readiness | PENDING DEPLOYMENT HARDENING (env vars + CSRF) |
 
 ---
 
@@ -107,6 +107,8 @@ Current system is not yet safe for scaled production use with real paying users.
 - TCP-WO-202 COMPLETE - secure document handling implemented (commit bf7dc27); APPROVED
 - TCP-WO-153 COMPLETE - procedural discipline hardening (commit c079e97); APPROVED
 - TCP-WO-154 COMPLETE - VM state reconciliation
+- TCP-WO-300 COMPLETE - Stripe payment gating implemented (commit f812aa7); APPROVED WITH CORRECTIONS
+- TCP-WO-155 COMPLETE - TCP-WO-300 disposition recorded; Milestone 1 declared functionally complete
 
 ---
 

@@ -73,15 +73,51 @@ Status: COMPLETE
 Reason:
 - Secure document handling implemented (commit bf7dc27); APPROVED
 
-### Payment work
-Status: BLOCKED
+### TCP-WO-300
+Status: COMPLETE
 Reason:
-- Milestone 1 security work is not yet complete
+- Stripe payment gating implemented (commit f812aa7); APPROVED WITH CORRECTIONS
+
+### Payment work
+Status: COMPLETE (functional)
+Reason:
+- TCP-WO-300 implements payment gating; deployment hardening tracked under Carry Forward / Hardening below
 
 ### Launch/marketing acceleration
 Status: BLOCKED
 Reason:
 - product is not yet safe to charge money at scale
+
+---
+
+## Carry Forward / Hardening
+
+These are non-blocking items that must be addressed before live production traffic. They are tracked here without being authored as full work orders.
+
+### CSRF protection
+Scope:
+- POST /api/create-checkout-session (TCP-WO-300 correction #1)
+- All POST endpoints (TCP-WO-200 correction)
+Owner: Sam (to issue future WO)
+
+### Cloud Run environment provisioning
+Scope:
+- THEMIS_ENCRYPTION_KEY (required before any encrypted-storage traffic)
+- STRIPE_SECRET_KEY (required before any payment traffic, test or live)
+Owner: Commander (manual configuration)
+
+### Webhook-based async payment confirmation
+Scope:
+- Replace or supplement sync /success verification with Stripe webhook
+- Better resilience to dropped redirects and refund/dispute events
+Owner: Sam (to issue future WO)
+
+### Other carryovers from prior dispositions
+- SQLite Phase 0 limit (Phase 1 PostgreSQL migration planned)
+- Auth rate limiting (TCP-WO-200 correction)
+- app.py vs app_production.py file consolidation (TCP-WO-200 correction)
+- gcr.io vs Artifact Registry path alignment (TCP-WO-200 correction)
+- Per-tenant KMS keys per TCP-ARCH-001 Section 7
 
 ---
 

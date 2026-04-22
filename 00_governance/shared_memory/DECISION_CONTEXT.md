@@ -126,3 +126,24 @@ Allows fast execution via chat while preserving strict auditability and system i
 
 Authority:
 Sam (locked via TCP-WO-154)
+
+---
+
+### 2026-04-22
+Decision:
+Milestone 1 Completion Definition
+
+Content:
+Milestone 1 is considered complete when:
+- authentication is implemented
+- encrypted storage is implemented
+- document handling is secure
+- payment gating is implemented
+
+Production deployment hardening may follow in subsequent work orders.
+
+Reason:
+Separates product capability completion from deployment readiness
+
+Authority:
+Sam (locked via TCP-WO-155)
