@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Themis Court Path</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .auth-card {
+            max-width: 440px;
+            margin: 3rem auto;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+        .auth-card h2 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        .auth-sub {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.75rem;
+        }
+        .auth-form label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 1rem 0 0.35rem;
+            font-size: 0.9rem;
+        }
+        .auth-form input {
+            width: 100%;
+            padding: 0.7rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        .auth-form input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(44,82,130,0.15);
+        }
+        .auth-error {
+            background: var(--error-bg);
+            color: var(--error);
+            padding: 0.7rem 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .auth-submit {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 0.85rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .auth-submit:hover { background: var(--primary-light); }
+        .auth-alt {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .auth-alt a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-alt a:hover { text-decoration: underline; }
+        .auth-logo {
+            display: block;
+            margin: 0 auto 1rem;
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="header-content">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem;">
+                <img src="/static/themis-logo.png" alt="Themis Court Path" class="header-logo">
+                <div>
+                    <h1>Themis Court Path</h1>
+                    <div class="header-subtitle">Your guided path through the court system</div>
+                </div>
+            </a>
+        </div>
+        <span class="header-badge">Arizona</span>
+    </div>
+</header>
+
+<div class="main-content">
+    <div class="auth-card">
+        <img src="/static/themis-logo.png" alt="Themis" class="auth-logo">
+        <h2>Sign in to your account</h2>
+        <p class="auth-sub">Continue your filing or review past documents.</p>
+
+        {% if error %}
+        <div class="auth-error">{{ error }}</div>
+        {% endif %}
+
+        <form class="auth-form" method="POST" action="/auth/login" autocomplete="on">
+            <label for="email">Email address</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                maxlength="254"
+                autocomplete="email"
+                value="{{ email or '' }}"
+            >
+
+            <label for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                minlength="12"
+                maxlength="128"
+                autocomplete="current-password"
+            >
+
+            <button type="submit" class="auth-submit">Sign In</button>
+        </form>
+
+        <div class="auth-alt">
+            New to Themis Court Path?
+            <a href="/auth/register">Create an account</a>
+        </div>
+    </div>
+</div>
+
+<footer class="app-footer">
+    <div class="footer-text">
+        Themis Court Path &mdash; a Division of Athena Intelligence &bull;
+        Atlas Systems Group &bull; Confidential Legal Document Preparation Software
+    </div>
+</footer>
+
+</body>
+</html>

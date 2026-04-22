@@ -4,15 +4,19 @@ Child Support Intake — Web Application
 Flask-based web frontend for the Navajo County
 Child Support Petition intake and PDF filling process.
 
+TCP-WO-200 (Auth System) integrated:
+- /api/submit and /api/download require an authenticated session
+- Intake JSON is no longer persisted to disk (TCP-WO-201 will add
+  encrypted persistence)
+- Generated PDFs land in an ephemeral OUTPUT_DIR for immediate
+  download by the requesting user only
+
 Usage: python app.py
 Then open http://localhost:5000 in Chrome.
 """
 
-import json
 import os
-import re
-import shutil
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import fitz  # PyMuPDF
 from flask import (
@@ -20,67 +24,96 @@ from flask import (
     send_file, session, redirect, url_for
 )
 
+from auth import auth_bp, init_db, close_db, login_required
+
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+
+# ── Session configuration ─────────────────────────────────
+# SECRET_KEY: from env in production (rotates without losing data),
+# random per-process in dev. NEVER hardcoded.
+app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32)
+
+_IS_PROD = os.environ.get("FLASK_ENV") == "production"
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=_IS_PROD,           # HTTPS-only in prod
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=24),
+    MAX_CONTENT_LENGTH=2 * 1024 * 1024,       # 2 MB cap on submissions
+)
 
 # ── Configuration ─────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_DIR = os.path.join(BASE_DIR, "output")
-PARENT_DIR = os.path.dirname(BASE_DIR)  # I:\ drive
 
-# Source PDF — the blank Navajo County petition packet
-SOURCE_PDF = os.path.join(PARENT_DIR, "Petition_to_Establish_Child_Support.pdf")
+# OUTPUT_DIR: /tmp in production (Cloud Run ephemeral), local dir in dev.
+# This holds generated PDFs for immediate download. It is NOT a database.
+# Phase 0 / TCP-WO-200: intake data is NEVER persisted to disk.
+# Phase 1 / TCP-WO-201: encrypted Cloud Storage will replace local disk.
+OUTPUT_DIR = "/tmp/themis_output" if _IS_PROD else os.path.join(BASE_DIR, "output")
+
+# Source PDF — bundled into the container image in production,
+# resolved from a configurable env var, with a sensible dev fallback.
+SOURCE_PDF = os.environ.get(
+    "SOURCE_PDF",
+    os.path.join(BASE_DIR, "Petition_to_Establish_Child_Support.pdf"),
+)
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# ── Auth blueprint + DB lifecycle ─────────────────────────
+app.register_blueprint(auth_bp)
+app.teardown_appcontext(close_db)
+
+with app.app_context():
+    init_db()
 
 
 # ── Routes ────────────────────────────────────────────────
 
 @app.route("/")
 def index():
-    """Landing page — starts fresh intake."""
-    session.clear()
+    """Landing page. Does NOT clear session (auth survives nav home)."""
     return render_template("index.html")
 
 
 @app.route("/intake")
+@login_required
 def intake():
-    """Main intake form — multi-step wizard."""
+    """Main intake form — multi-step wizard. Requires login."""
     return render_template("intake.html")
 
 
 @app.route("/api/submit", methods=["POST"])
+@login_required
 def submit_intake():
     """
-    Receive the completed intake JSON from the frontend,
-    save it, fill the PDF, and return download links.
+    Receive the completed intake JSON, fill the PDF, and return
+    download links. The intake JSON itself is NOT persisted —
+    encrypted persistence is TCP-WO-201.
     """
-    data = request.get_json()
+    data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "No data received"}), 400
 
-    # Add metadata
+    # Tag with the authenticated user (audit log will consume this in Phase 0)
     data["generated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
     data["form"] = "Navajo County Petition to Establish Child Support"
+    data["_user_id"] = session.get("user_id")
 
-    # Build filenames from party names
+    # Build a filename base from party names for the generated PDF.
     pet_last = data.get("petitioner", {}).get("last_name", "Unknown").replace(" ", "_")
     resp_last = data.get("respondent", {}).get("last_name", "Unknown").replace(" ", "_")
     child_first = data.get("child", {}).get("first_name", "Child").replace(" ", "_")
     base_name = f"{pet_last}_vs_{resp_last}_{child_first}"
 
-    # Save JSON
-    json_path = os.path.join(OUTPUT_DIR, f"{base_name}_intake.json")
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-
-    # Fill PDFs
+    # Generate the filled PDFs (and validation note) into OUTPUT_DIR.
+    # No intake JSON is written to disk in Phase 0.
     result = fill_petition_pdf(data, base_name)
 
     return jsonify({
         "success": True,
         "base_name": base_name,
-        "json_file": os.path.basename(json_path),
         "pdf_editable": result.get("editable"),
         "pdf_filled": result.get("filled"),
         "validation": result.get("validation"),
@@ -90,8 +123,9 @@ def submit_intake():
 
 
 @app.route("/api/download/<filename>")
+@login_required
 def download_file(filename):
-    """Serve a generated file for download."""
+    """Serve a generated file for download. Auth required."""
     # Sanitize filename to prevent directory traversal
     safe_name = os.path.basename(filename)
     filepath = os.path.join(OUTPUT_DIR, safe_name)
@@ -101,6 +135,7 @@ def download_file(filename):
 
 
 @app.route("/success")
+@login_required
 def success():
     """Success page with download links."""
     return render_template("success.html")
@@ -1197,4 +1232,4 @@ if __name__ == "__main__":
     print("  Open Chrome and go to: http://localhost:5000")
     print("=" * 55)
     print()
-    app.run(debug=True, port=5000)
+    app.run(debug=not _IS_PROD, port=int(os.environ.get("PORT", 5000)))
