@@ -108,6 +108,38 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-22 10:43 MST - SESSION HANDOFF
+
+Actor: Claude
+
+Completed:
+- TCP-WO-201A - Encrypted Storage Layer (commit 1878eab)
+- Pre-execution memory load completed
+- 9 storage unit tests passed (encrypt/decrypt round-trip, no plaintext leakage, cross-user reject, input validation)
+- 6-step end-to-end Flask test passed (register, submit, raw DB inspection, decrypt round-trip, anon reject, no plaintext JSON on disk)
+
+Changed:
+- 01_APPLICATION/storage.py (NEW - Fernet encryption, SQLite filings table, save/load/list functions)
+- 01_APPLICATION/app.py (MOD - import storage, init_storage_db on startup, /api/submit calls save_filing and returns filing_id)
+- 01_APPLICATION/requirements.txt (MOD - added cryptography==44.0.0)
+
+Decisions:
+- (none - no architectural decisions made; deferred to ChatGPT/Commander)
+
+Open Issues:
+- Generated PDFs still written to OUTPUT_DIR (/tmp ephemeral in production) - PDF-at-rest encryption not in TCP-WO-201A scope; recommend follow-up WO
+- Per-tenant KMS keys per TCP-ARCH-001 Section 7 not yet implemented (single application-level Fernet key for Phase 0)
+- THEMIS_ENCRYPTION_KEY not yet set in Cloud Run service environment - dev fallback warns but production deploy needs the env var configured before live use
+- SQLite filings DB at /tmp wipes on Cloud Run container restart (same Phase 0 limitation as users DB; Phase 1 PostgreSQL planned)
+- Trigger protocol (TCP-WO-160) and n8n notification (TCP-WO-161) still pending Sam
+- Five TCP-WO-200 corrections still queued as future WOs
+
+Next Recommended Action:
+- Sam reviews TCP-WO-201A (commit 1878eab) and issues disposition
+- If approved: Commander provisions THEMIS_ENCRYPTION_KEY in Cloud Run before any production traffic uses the encrypted storage path
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF

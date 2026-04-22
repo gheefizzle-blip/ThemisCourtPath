@@ -64,9 +64,9 @@ Notes:
 ## Blocked Items
 
 ### TCP-WO-201
-Status: READY
+Status: COMPLETE
 Reason:
-- TCP-WO-200 dispositioned APPROVED WITH CORRECTIONS; dependency cleared
+- Issued and executed as TCP-WO-201A (commit 1878eab); pending Sam review
 
 ### Payment work
 Status: BLOCKED
