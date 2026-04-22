@@ -229,6 +229,41 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-22 12:23 MST - SESSION HANDOFF
+
+Actor: Claude
+
+Completed:
+- TCP-WO-300 - Stripe Payment Gating ($99 filing fee) (commit f812aa7)
+- Pre-execution memory load completed
+- 14-step mocked E2E test passed (register, submit, pre-payment 403, checkout creation, post-checkout still 403, /success verification, post-payment 200, cross-user 404, mismatched-session banner, anon denied, Stripe-not-configured 503)
+
+Changed:
+- 01_APPLICATION/payments.py (NEW - Stripe init, create_checkout_session, verify_payment; safe import even if STRIPE_SECRET_KEY unset)
+- 01_APPLICATION/storage.py (MOD - additive schema migration adding payment_status DEFAULT 'pending' and stripe_session_id; new helpers get_payment_status, set_stripe_session, mark_payment_status, lookup_filing_by_session)
+- 01_APPLICATION/app.py (MOD - new POST /api/create-checkout-session; /success now verifies session_id with Stripe, validates metadata user_id matches logged-in user, marks paid, renders downloads; /api/download gated on payment_status=='paid' returning 403 otherwise)
+- 01_APPLICATION/static/js/intake.js (MOD - replaced direct download links with single 'Pay $99 & Download Documents' CTA; new startCheckout function)
+- 01_APPLICATION/templates/success.html (MOD - server-rendered template with payment-verified branch, error banner branch, fallback branch)
+- 01_APPLICATION/requirements.txt (MOD - added stripe==11.4.1)
+- 01_APPLICATION/tests/wo300_test.py (NEW - mocked E2E test runner)
+
+Decisions:
+- (none - no architectural decisions made by Claude; design followed WO spec)
+
+Open Issues:
+- STRIPE_SECRET_KEY not yet provisioned in Cloud Run env (required before live or test traffic)
+- THEMIS_ENCRYPTION_KEY still not provisioned in Cloud Run env (carried)
+- Webhook-based async payment confirmation deferred (sync /success verification per WO scope)
+- CSRF protection on POST /api/create-checkout-session not added (carried from TCP-WO-200 corrections)
+- Trigger protocol (TCP-WO-160) and n8n notification (TCP-WO-161) still pending Sam
+- Per-tenant KMS keys per TCP-ARCH-001 Section 7 still deferred
+
+Next Recommended Action:
+- Sam reviews TCP-WO-300 (commit f812aa7) and issues formal disposition WO
+- After approval: Commander provisions STRIPE_SECRET_KEY (test) in Cloud Run before any live test traffic
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF
