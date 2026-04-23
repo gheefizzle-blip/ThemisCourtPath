@@ -49,14 +49,11 @@ URL:   https://app.themiscourtpath.com
 
 ---
 
-## Comparison Table
+## How Themis Court Path Compares
 
-| Option | Cost | Time |
-|--------|------|------|
-| Hire a family law attorney | $2,000 - $3,000 | 2 - 4 weeks |
-| Use a legal document preparer | $300 - $500 | 1 - 2 weeks |
-| Themis Court Path | $99 | About 30 minutes |
-| Do it yourself with no help | $0 (plus court fee) | Several hours of research |
+For many straightforward cases, Themis Court Path costs far less than hiring an attorney to prepare the same paperwork. We are designed for self-represented litigants who want guided document preparation without ongoing legal fees.
+
+If your case is contested, involves disputed paternity, or has any element of domestic violence, we recommend consulting a licensed Arizona attorney before filing.
 
 ---
 

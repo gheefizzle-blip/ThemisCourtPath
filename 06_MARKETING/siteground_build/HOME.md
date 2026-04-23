@@ -15,7 +15,7 @@ Themis Court Path is a document preparation service, not a law firm. We do not p
 
 ### Headline
 
-File for Child Support in Arizona Without the $3,000 Lawyer Fee.
+Prepare your Arizona child support filing without the typical legal paperwork headache.
 
 ### Subheadline
 
@@ -61,7 +61,7 @@ Navajo County today. Maricopa, Pima, and Pinal next. We use the official 2022 Ar
 
 ### 3. One flat fee. No subscriptions.
 
-$99, one time. The same paperwork an attorney would charge $2,000 to $3,000 to prepare.
+$99, one time. For many straightforward cases, Themis Court Path costs far less than hiring an attorney to prepare the same paperwork.
 
 ---
 

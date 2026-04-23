@@ -27,11 +27,7 @@ No. Themis Court Path is a document preparation tool. We do not provide legal ad
 
 ## 2. Is my data secure?
 
-Yes. Three layers of protection:
-
-1. Your intake data is encrypted (Fernet / AES) before it is stored. The raw database row contains ciphertext, not your personal information.
-2. Generated PDFs are produced in memory and streamed directly to you. Nothing is written to disk in plaintext.
-3. We never see your card information. Stripe handles payment processing directly.
+Yes. Your data is encrypted before it is stored, and your documents are delivered securely. We never see your card information; Stripe handles payment processing directly.
 
 ## 3. Can I edit my documents after they are generated?
 

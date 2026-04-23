@@ -58,7 +58,7 @@ Submit button:
 Label: Send Message
 
 Form action:
-Send to support@themiscourtpath.com via WordPress contact-form plugin (e.g., WPForms Lite). No data should be persisted in the WordPress database beyond standard plugin defaults.
+Use a standard contact form plugin configured to send messages to support@themiscourtpath.com.
 
 ---
 
