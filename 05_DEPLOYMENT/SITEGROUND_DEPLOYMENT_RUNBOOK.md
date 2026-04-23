@@ -91,21 +91,32 @@ All four required copy corrections from TCP-WO-312 have been applied to these so
 - [ ] Open `https://themiscourtpath.com/wp-admin`
 - [ ] Sign in with the admin credentials from A.2
 
-## B.2 Install Astra theme
+## B.2 Theme decision (DONE - keeping Neve)
 
-- [ ] Appearance -> Themes -> Add New Theme
-- [ ] Search: Astra (by Brainstorm Force)
-- [ ] Install -> Activate
+The existing WordPress install on themiscourtpath.com already has the Neve theme active. Per Commander decision (2026-04-23), we keep Neve. Astra is no longer required.
+
+- [x] Theme: Neve (already active)
+- [ ] Optional: Appearance -> Themes -> confirm Neve is the active theme
+- [ ] If a Neve update is available, apply it
 
 ## B.3 Install required plugins
 
-For each, Plugins -> Add New -> search -> Install -> Activate:
+For each, Plugins -> Add New -> search -> Install -> Activate (skip any already present):
 
 - [ ] WPForms Lite (contact form)
-- [ ] WP Super Cache (page cache)
+- [ ] WP Super Cache (page cache) - SKIP if SiteGround Speed Optimizer + SG Cache already provide caching
 - [ ] Yoast SEO (sitemap.xml + meta tags)
 
-Skip Astra Starter Templates unless you want to use a pre-built design as a starting point. Phase D builds pages directly from the source content.
+Plugins to KEEP from the existing install:
+- SiteGround Speed Optimizer
+- SiteGround Security Optimizer
+- SG Cache
+
+Plugins to REMOVE if still active (per Commander cleanup):
+- AI Studio Agent
+- Any other unrelated 3rd-party plugins
+
+Phase D builds pages directly from the source content; no starter template needed.
 
 ## B.4 Baseline settings
 
@@ -221,7 +232,7 @@ Per `06_MARKETING/siteground_build/NAVIGATION.md`:
 - [ ] Set Display Location: Primary Menu
 - [ ] Save Menu
 
-To make "Start Filing" appear as a button, use the Astra header button option in Appearance -> Customize -> Header Builder, with URL `https://app.themiscourtpath.com` and label "Start Filing".
+To make "Start Filing" appear as a button, use Neve's Header Builder under Appearance -> Customize -> Layout -> Header (or Header Builder). Drop a "Button" component into the right slot of the top or main row. Set URL to `https://app.themiscourtpath.com`, label "Start Filing", style "Primary".
 
 ### Footer Menu (per `FOOTER.md`)
 
@@ -230,7 +241,7 @@ To make "Start Filing" appear as a button, use the Astra header button option in
 - [ ] Set Display Location: Footer Menu
 - [ ] Save Menu
 
-For the multi-column footer (Product / Resources / Legal), use Astra's Footer Builder under Appearance -> Customize -> Footer Builder, configured per `FOOTER.md`.
+For the multi-column footer (Product / Resources / Legal), use Neve's Footer Builder under Appearance -> Customize -> Layout -> Footer (or Footer Builder), configured per `FOOTER.md`.
 
 ## D.11 Configure the Contact form
 

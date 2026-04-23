@@ -24,6 +24,7 @@ Notes:
 - The Start Filing button must be visually distinct (filled primary color) and present on every page.
 - The Sign In link is a plain text link, less visual weight than the Start Filing button.
 - The header should stick to the top of the viewport on scroll.
+- In Neve: Appearance -> Customize -> Layout -> Header (Header Builder). Use the "Button" component to add the Start Filing CTA in the right slot.
 
 ---
 

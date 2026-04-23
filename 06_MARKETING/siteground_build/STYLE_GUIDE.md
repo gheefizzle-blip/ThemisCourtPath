@@ -22,8 +22,9 @@ These mirror TCP-WO-310 / the app palette so the marketing site and the app look
 | Error | #9b2c2c | Form validation errors |
 | Success | #276749 | Confirmations |
 
-WordPress theme guidance:
-- Astra Customize -> Global -> Colors: paste these values into the theme color pickers.
+WordPress theme guidance (Neve):
+- Appearance -> Customize -> Colors & Background: paste these values into the theme color pickers (Primary Accent, Secondary Accent, Site Background, Body Text, Headings).
+- If your Neve version surfaces a "Global Color Palette" instead, the same values apply.
 - Do not introduce additional accent colors without updating this guide.
 
 ---
