@@ -337,6 +337,46 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-22 19:21 MST - SESSION HANDOFF
+
+Actor: Claude
+
+Completed:
+- TCP-WO-311 - Build SiteGround Front-End Content Package (commit d170cc9)
+- Pre-execution memory load completed
+- 11 deliverable files produced in 06_MARKETING/siteground_build/
+- ASCII-only verification passed across all 11 files
+- CTA routing verification: every URL routes to https://app.themiscourtpath.com or its /auth/login or /auth/register sub-paths
+
+Changed:
+- 06_MARKETING/siteground_build/ (NEW directory)
+  - HOME.md (NEW - hero, How It Works mini, trust pillars, pricing teaser, final CTA, page disclaimer)
+  - HOW_IT_WORKS.md (NEW - 5-step page with top + bottom CTAs and Step 1 Create Account button)
+  - PRICING.md (NEW - "Prepare your child support filing for $99"; explicit Themis fee vs court fee vs process server fee separation; refund placeholder; visible disclaimer block)
+  - FAQ.md (NEW - 10 entries covering legal advice, security, edits, refund, courts, filing, lawyer, mistakes, save/resume, other parent)
+  - CONTACT.md (NEW - email block + non-PII contact form; explicit "do not include personal/financial/case details" warnings before and after the form)
+  - PRIVACY_PLACEHOLDER.md (NEW - points to 07_COMPLIANCE/Privacy_Policy_DRAFT.md; short pre-publication summary; "DRAFT - PENDING LEGAL REVIEW")
+  - TERMS_PLACEHOLDER.md (NEW - points to 07_COMPLIANCE/Terms_of_Service_DRAFT.md; short pre-publication summary; "DRAFT - PENDING LEGAL REVIEW")
+  - DISCLAIMER_PLACEHOLDER.md (NEW - points to 06_MARKETING/website_copy/legal/disclaimer.md; short pre-publication summary; "DRAFT - PENDING LEGAL REVIEW")
+  - NAVIGATION.md (NEW - desktop + mobile header nav, footer nav groups, CTA placement matrix, forbidden patterns)
+  - FOOTER.md (NEW - 3-column footer + legal strip + disclaimer block + bottom strip; mobile stacking order)
+  - STYLE_GUIDE.md (NEW - colors, typography, button labels, tone rules with avoid/use lists, CTA rules, disclaimer placement matrix, image rules, performance rules)
+
+Decisions:
+- (none - no architectural decisions made by Claude; design followed WO spec and TCP-WO-310 source)
+
+Open Issues:
+- All copy is DRAFT - REQUIRES COMMANDER REVIEW; legal pages additionally REQUIRE LEGAL REVIEW
+- Logo asset still needs web compression (carryover from TCP-WO-310; ~2.7MB -> target ~150KB)
+- This WO produces the content package; actual WordPress page build / publication is a future Commander or follow-up WO
+- All TCP-WO-300 carryforward items still open (CSRF, env provisioning, webhooks, SQLite Phase 0, etc.)
+
+Next Recommended Action:
+- Sam reviews TCP-WO-311 deliverables (commit d170cc9) and issues disposition
+- Then either: (a) Commander executes the SITEGROUND_DEPLOYMENT_PLAN Phase A-D (provisioning + WordPress build), or (b) Sam scopes a hardening sprint
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF
