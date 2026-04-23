@@ -377,6 +377,57 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-23 01:43 MST - SESSION HANDOFF
+
+Actor: Claude
+
+Completed (within Claude's actual capability):
+- TCP-WO-312 - Apply WO-required copy corrections + produce Commander runbook (commit 648edd9)
+- Pre-execution memory load completed
+- 4 mandatory copy corrections applied to source content files in 06_MARKETING/siteground_build/
+- Re-verification: ASCII-only PASSED across all 11 files; CTA routing PASSED (only the three permitted app URLs appear)
+- New SITEGROUND_DEPLOYMENT_RUNBOOK.md authored with executable Phase A-F steps for Commander
+
+NOT Completed (outside Claude's actual capability):
+- WordPress install on SiteGround
+- Astra theme + plugin installation via SiteGround/WordPress admin
+- WordPress page creation and content paste
+- Logo / favicon compression and upload to WordPress Media Library
+- Navigation menu construction in WordPress admin
+- WPForms contact form configuration with notification email
+- Live-site CTA routing audit (requires the live site to exist)
+- Live-site mobile layout verification
+- Live-site contact-form delivery test
+- Live-site PageSpeed performance check
+- DNS A record changes (Commander-controlled per Out of Scope)
+
+Reason for STOP+REPORT on the build/deploy steps:
+- Per TCP-WO-153 Section 8: required dependencies are not met (no SiteGround credentials, no browser-driven admin access)
+- Claude Code is not configured with SiteGround login or REST API credentials and cannot drive a browser
+- This is the same pattern as TCP-WO-005 deploy.sh: Claude produces the artifacts and runbook; Commander executes the deployment
+
+Changed:
+- 06_MARKETING/siteground_build/HOME.md (MOD - Correction 1: replaced headline; Correction 2: softened the "$2,000 to $3,000" attorney comparison in Why Themis pillar 3)
+- 06_MARKETING/siteground_build/PRICING.md (MOD - Correction 2: replaced the comparison table with the softened statement; added recommendation to consult attorney for contested/DV/disputed cases)
+- 06_MARKETING/siteground_build/FAQ.md (MOD - Correction 3: replaced 3-bullet technical security answer including "Fernet / AES" with a single simpler sentence per WO-required wording)
+- 06_MARKETING/siteground_build/CONTACT.md (MOD - Correction 4: replaced the WordPress-database persistence sentence with the simpler "Use a standard contact form plugin" sentence per WO-required wording)
+- 05_DEPLOYMENT/SITEGROUND_DEPLOYMENT_RUNBOOK.md (NEW - Phase A through F runbook with per-step checkboxes; references the corrected source files; estimated total time 135 min for Commander to bring site live)
+
+Decisions:
+- (none - no architectural decisions made by Claude)
+
+Open Issues:
+- The 4 build/deploy actions above remain pending Commander execution of SITEGROUND_DEPLOYMENT_RUNBOOK.md
+- All TCP-WO-300 carryforward items still open
+- Logo asset web compression still pending (now documented as runbook Phase C.1 task)
+- Final disposition of legal placeholders still pending licensed counsel review
+
+Next Recommended Action:
+- Commander executes SITEGROUND_DEPLOYMENT_RUNBOOK.md Phase A-E (about 135 min total) to bring the marketing site live
+- Then: Sam reviews the live site against TCP-WO-312 acceptance criteria and issues formal disposition
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF
