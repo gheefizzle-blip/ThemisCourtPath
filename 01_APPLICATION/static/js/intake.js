@@ -5,7 +5,7 @@
  */
 
 let currentStep = 1;
-const totalSteps = 11;
+const totalSteps = 12;
 
 // ── Initialization ──────────────────────────────────────────
 
@@ -1283,6 +1283,12 @@ function buildReview() {
 async function submitForm() {
     const data = collectFormData();
 
+    // TCP-WO-320: attach the fee waiver intent as a non-sensitive flag
+    // on the submission. The server stores this in a plaintext column,
+    // not inside the encrypted intake payload.
+    const waiverInput = document.querySelector('input[name="fee_waiver_requested"]:checked');
+    data.fee_waiver_requested = waiverInput ? waiverInput.value : 'no';
+
     // Show loading
     document.getElementById('loadingOverlay').classList.add('visible');
 
@@ -1319,12 +1325,18 @@ function showSuccess(result) {
     // TCP-WO-300: documents are gated behind payment.
     // Replace direct download links with a single "Pay & Download" CTA.
     // After payment, /success serves the live download links.
+    // TCP-WO-320: near-payment disclaimer about fee waiver determination.
     if (result.filing_id) {
         const safeFilingId = String(result.filing_id).replace(/[^a-zA-Z0-9-]/g, '');
         html += `<li style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
             <span style="font-weight:600;">Documents are ready and waiting</span>
             <span style="color:var(--text-muted);font-size:0.9rem;">
                 Pay $99 to unlock your editable PDF, court-ready PDF, and validation report.
+            </span>
+            <span style="color:var(--text-muted);font-size:0.8rem;max-width:420px;text-align:center;line-height:1.4;">
+                Themis Court Path does not determine whether you qualify for a fee waiver.
+                The court will make that decision based on your application.
+                The $99 Themis fee is separate from the court's filing fee.
             </span>
             <button id="payBtn" type="button" class="btn btn-success"
                     onclick="startCheckout('${safeFilingId}')">

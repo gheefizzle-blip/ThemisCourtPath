@@ -57,6 +57,18 @@ If your case is contested, involves disputed paternity, or has any element of do
 
 ---
 
+## Total Cost Breakdown
+
+Themis Court Path fee: $99
+
+Court filing fee (paid to the court):
+Typically $200 - $350 depending on your county.
+
+Fee assistance:
+If you cannot afford the court filing fee, Arizona allows you to apply for a fee deferral or waiver. The court will decide whether you qualify based on your application. Themis Court Path does not determine waiver eligibility.
+
+---
+
 ## Refund Policy (placeholder summary)
 
 Full refund available before your documents are generated. After generation, the service has been delivered, so refunds are not issued except in the case of a demonstrable software error on our end.

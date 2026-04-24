@@ -125,6 +125,13 @@ def submit_intake():
         # Belt and suspenders — login_required already enforced this.
         return jsonify({"error": "Authentication required"}), 401
 
+    # TCP-WO-320: extract the non-sensitive fee-waiver flag. This is a
+    # plaintext column on the filings row (not part of the encrypted
+    # payload). Accepted values: "yes", "no". Default: "no".
+    fee_waiver_requested = str(data.pop("fee_waiver_requested", "no")).lower()
+    if fee_waiver_requested not in ("yes", "no"):
+        fee_waiver_requested = "no"
+
     # Tag with the authenticated user
     data["generated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
     data["form"] = "Navajo County Petition to Establish Child Support"
@@ -133,13 +140,18 @@ def submit_intake():
     # Encrypt and persist as the source of truth. PDFs are regenerated
     # on demand from this — they are not the persistence layer.
     try:
-        filing_id = save_filing(user_id, data)
+        filing_id = save_filing(
+            user_id, data, fee_waiver_requested=fee_waiver_requested
+        )
     except Exception:
         app.logger.exception("save_filing failed")
         return jsonify({"error": "Could not save filing"}), 500
 
     # Smoke-validate that PDF generation succeeds in memory.
     # Bytes are discarded immediately — nothing written to disk.
+    # Mirror what load_filing() does so the smoke path exercises the
+    # same validation-note branch a real download will hit.
+    data["_fee_waiver_requested"] = fee_waiver_requested
     try:
         smoke = fill_petition_pdf(data)
     except Exception:
@@ -1438,6 +1450,25 @@ def generate_validation(data, filled_fields):
     v.append("  5. File with the Clerk of Court")
     v.append("  6. Handle filing fee (pay, defer, or waive)")
     v.append("")
+
+    # TCP-WO-320: if the user indicated intent to apply for a court fee
+    # waiver during intake, surface that in the validation note so they
+    # remember to include the waiver application when filing.
+    if data.get("_fee_waiver_requested") == "yes":
+        v.append("-" * 70)
+        v.append("COURT FILING FEE WAIVER")
+        v.append("-" * 70)
+        v.append("  User indicated intent to apply for court fee waiver.")
+        v.append("  Include fee waiver application when filing.")
+        v.append("  Arizona waiver / deferral forms are available from the")
+        v.append("  Clerk of Superior Court in your county, or online at")
+        v.append("  azcourts.gov/selfservicecenter (Fee Waiver / Deferral).")
+        v.append("")
+        v.append("  Themis Court Path does not determine whether you qualify")
+        v.append("  for a fee waiver. The court will make that decision based")
+        v.append("  on your application.")
+        v.append("")
+
     v.append("=" * 70)
     v.append("END OF VALIDATION NOTE")
     v.append("=" * 70)

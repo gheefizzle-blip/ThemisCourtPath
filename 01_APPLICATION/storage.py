@@ -66,27 +66,30 @@ def init_db() -> None:
     """Create the filings table if it does not exist. Idempotent.
 
     TCP-WO-300: filings table extended with payment_status and
-    stripe_session_id columns. Migration is additive and safe to
-    re-run on an existing database.
+    stripe_session_id columns.
+    TCP-WO-320: filings table extended with fee_waiver_requested column
+    (non-sensitive flag, plaintext).
+    Migrations are additive and safe to re-run on an existing database.
     """
     conn = sqlite3.connect(_get_db_path())
     try:
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS filings (
-                id                TEXT PRIMARY KEY,
-                user_id           TEXT NOT NULL,
-                encrypted_payload TEXT NOT NULL,
-                created_at        TEXT NOT NULL,
-                payment_status    TEXT NOT NULL DEFAULT 'pending',
-                stripe_session_id TEXT
+                id                   TEXT PRIMARY KEY,
+                user_id              TEXT NOT NULL,
+                encrypted_payload    TEXT NOT NULL,
+                created_at           TEXT NOT NULL,
+                payment_status       TEXT NOT NULL DEFAULT 'pending',
+                stripe_session_id    TEXT,
+                fee_waiver_requested TEXT NOT NULL DEFAULT 'no'
             )
             """
         )
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_filings_user ON filings(user_id, created_at DESC)"
         )
-        # Additive migration for pre-WO-300 databases.
+        # Additive migrations for pre-WO-300 / pre-WO-320 databases.
         existing_cols = {r[1] for r in conn.execute("PRAGMA table_info(filings)").fetchall()}
         if "payment_status" not in existing_cols:
             conn.execute(
@@ -94,6 +97,10 @@ def init_db() -> None:
             )
         if "stripe_session_id" not in existing_cols:
             conn.execute("ALTER TABLE filings ADD COLUMN stripe_session_id TEXT")
+        if "fee_waiver_requested" not in existing_cols:
+            conn.execute(
+                "ALTER TABLE filings ADD COLUMN fee_waiver_requested TEXT NOT NULL DEFAULT 'no'"
+            )
         conn.commit()
     finally:
         conn.close()
@@ -119,12 +126,23 @@ def decrypt_data(token: str) -> dict:
 
 # ── Storage operations ──────────────────────────────────────
 
-def save_filing(user_id: str, data: dict) -> str:
-    """Encrypt and persist a filing for a user. Returns the new filing_id."""
+def save_filing(
+    user_id: str,
+    data: dict,
+    fee_waiver_requested: str = "no",
+) -> str:
+    """Encrypt and persist a filing for a user. Returns the new filing_id.
+
+    TCP-WO-320: fee_waiver_requested is a non-sensitive flag stored in a
+    plaintext column (NOT in the encrypted payload). Accepted values
+    are 'yes' or 'no'; any other value is coerced to 'no'.
+    """
     if not user_id or not isinstance(user_id, str):
         raise ValueError("user_id required")
     if not isinstance(data, dict):
         raise TypeError("data must be a dict")
+
+    waiver = "yes" if str(fee_waiver_requested).lower() == "yes" else "no"
 
     filing_id = str(uuid.uuid4())
     now_iso = datetime.now(timezone.utc).isoformat()
@@ -133,9 +151,10 @@ def save_filing(user_id: str, data: dict) -> str:
     conn = sqlite3.connect(_get_db_path())
     try:
         conn.execute(
-            "INSERT INTO filings (id, user_id, encrypted_payload, created_at) "
-            "VALUES (?, ?, ?, ?)",
-            (filing_id, user_id, encrypted, now_iso),
+            "INSERT INTO filings "
+            "(id, user_id, encrypted_payload, created_at, fee_waiver_requested) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (filing_id, user_id, encrypted, now_iso, waiver),
         )
         conn.commit()
     finally:
@@ -158,7 +177,8 @@ def load_filing(filing_id: str, user_id: str) -> dict:
     conn.row_factory = sqlite3.Row
     try:
         row = conn.execute(
-            "SELECT user_id, encrypted_payload FROM filings WHERE id = ?",
+            "SELECT user_id, encrypted_payload, fee_waiver_requested "
+            "FROM filings WHERE id = ?",
             (filing_id,),
         ).fetchone()
     finally:
@@ -167,7 +187,12 @@ def load_filing(filing_id: str, user_id: str) -> dict:
     if row is None or row["user_id"] != user_id:
         raise LookupError("filing not found")
 
-    return decrypt_data(row["encrypted_payload"])
+    data = decrypt_data(row["encrypted_payload"])
+    # TCP-WO-320: inject the non-sensitive waiver flag so document
+    # generation (validation note) can reflect it without a separate
+    # query. This flag is stored as a plaintext column, never encrypted.
+    data["_fee_waiver_requested"] = row["fee_waiver_requested"] or "no"
+    return data
 
 
 def list_user_filings(user_id: str) -> list:

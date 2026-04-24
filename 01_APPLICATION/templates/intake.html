@@ -18,7 +18,7 @@
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <span class="header-badge" id="stepIndicator">Step 1 of 11</span>
+            <span class="header-badge" id="stepIndicator">Step 1 of 12</span>
             <a href="/auth/logout" style="color: rgba(255,255,255,0.9); font-size: 0.85rem; text-decoration: none;">Sign out</a>
         </div>
     </div>
@@ -39,6 +39,7 @@
         <div class="step-dot" data-step="9" onclick="goToStep(9)">9</div>
         <div class="step-dot" data-step="10" onclick="goToStep(10)">10</div>
         <div class="step-dot" data-step="11" onclick="goToStep(11)">11</div>
+        <div class="step-dot" data-step="12" onclick="goToStep(12)">12</div>
     </div>
     <div class="progress-labels">
         <span class="step-label active">Petitioner</span>
@@ -1468,6 +1469,64 @@
             <strong>Before generating:</strong> Please review all information above carefully.
             The generated PDF will be pre-filled with these values. You can still edit the
             PDF after generation, but it's easier to fix data here first.
+        </div>
+
+        <div class="form-nav">
+            <button type="button" class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue &rarr;</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STEP 12: COURT FILING FEE INFORMATION  (TCP-WO-320)
+         ═══════════════════════════════════════════════════════ -->
+    <div class="form-card step-panel hidden" id="step12">
+        <div class="section-title">
+            <span class="section-number">12</span>
+            Court Filing Fee Information
+        </div>
+
+        <p class="section-description">
+            After your documents are prepared, you will file them with the court.
+        </p>
+
+        <div class="info-box note" style="margin-bottom: 1rem;">
+            The court charges a <strong>filing fee, typically $200 - $350</strong> depending on your county.
+            This fee is separate from the $99 you pay Themis Court Path and is paid directly to the court.
+        </div>
+
+        <p style="margin: 1rem 0 0.5rem;">
+            If you cannot afford this fee, Arizona allows you to apply for a:
+        </p>
+        <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+            <li><strong>Fee deferral</strong> (pay later, on a schedule)</li>
+            <li><strong>Fee waiver</strong> (do not pay at all)</li>
+        </ul>
+        <p style="margin-bottom: 1.5rem;">
+            The court will decide whether you qualify.
+        </p>
+
+        <div class="field-group" style="margin-top: 1.5rem;">
+            <label class="field-label" style="font-weight: 600; margin-bottom: 0.75rem; display: block;">
+                Do you plan to apply for a filing fee waiver?
+                <span style="color: var(--error); font-weight: 700;">*</span>
+            </label>
+
+            <label class="radio-option" style="display: block; padding: 0.7rem; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.5rem; cursor: pointer;">
+                <input type="radio" name="fee_waiver_requested" value="yes" required>
+                <span style="margin-left: 0.5rem;">Yes, I plan to apply for a fee waiver</span>
+            </label>
+
+            <label class="radio-option" style="display: block; padding: 0.7rem; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.5rem; cursor: pointer;">
+                <input type="radio" name="fee_waiver_requested" value="no" checked required>
+                <span style="margin-left: 0.5rem;">No, I will pay the court filing fee</span>
+            </label>
+        </div>
+
+        <div class="info-box warning" style="margin-top: 1.5rem;">
+            <strong>Important:</strong> Themis Court Path does not determine whether you qualify for a fee waiver.
+            The court will make that decision based on your application. Your selection here is for your own records and
+            does not affect the $99 Themis Court Path fee.
         </div>
 
         <div class="form-nav">
