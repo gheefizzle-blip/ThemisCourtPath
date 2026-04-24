@@ -428,6 +428,40 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-24 12:07 MST - SESSION HANDOFF
+
+Actor: Claude
+
+Completed:
+- TCP-WO-320 - Court Fee Disclosure and Waiver Flow (commit 2a42452)
+- Pre-execution memory load completed
+- 15-step mocked E2E test passed (schema migration, waiver persistence, plaintext-column isolation, validation note injection for waiver=yes, validation note absence for waiver=no, invalid-value coercion, omitted-field default, payment flow unchanged, Stripe pricing unchanged)
+
+Changed:
+- 01_APPLICATION/storage.py (MOD - additive migration for fee_waiver_requested column; save_filing accepts kwarg; load_filing injects _fee_waiver_requested into returned data dict)
+- 01_APPLICATION/app.py (MOD - /api/submit extracts and pops fee_waiver_requested before encryption, passes to save_filing; smoke path mirrors load_filing; generate_validation appends COURT FILING FEE WAIVER section when flag is 'yes')
+- 01_APPLICATION/templates/intake.html (MOD - new Step 12 Court Filing Fee Information panel with disclosure text, yes/no radio, step-dot added, step indicator updated to 'Step 1 of 12', Step 11 final button changed to Continue)
+- 01_APPLICATION/static/js/intake.js (MOD - totalSteps 11 -> 12; submitForm captures radio selection; success overlay near-payment disclaimer added per WO)
+- 01_APPLICATION/tests/wo320_test.py (NEW - 15-step E2E coverage)
+- 06_MARKETING/siteground_build/PRICING.md (MOD - added Total Cost Breakdown section per WO content spec)
+
+Decisions:
+- (none - no architectural decisions made by Claude; design followed WO spec)
+
+Open Issues:
+- Waiver flag is stored as a plaintext SQLite column (intentional per WO); when Phase 1 PostgreSQL migration happens the column goes with it unchanged
+- Legal placeholders on public site remain DRAFT pending counsel review (unchanged)
+- STRIPE_SECRET_KEY / THEMIS_ENCRYPTION_KEY still not provisioned in Cloud Run (carried)
+- CSRF protection on POST endpoints still pending (carried)
+- All other TCP-WO-300 carryforward items still open (carried)
+- Commander has not yet run SITEGROUND_DEPLOYMENT_RUNBOOK Phase A-E to bring the marketing site live with the new PRICING.md content (carried from TCP-WO-312)
+
+Next Recommended Action:
+- Sam reviews TCP-WO-320 (commit 2a42452) and issues formal disposition WO
+- Commander continues SiteGround marketing-site build when time permits; the new PRICING.md Total Cost Breakdown section is now in the content package
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF
