@@ -462,6 +462,29 @@ Next Recommended Action:
 
 ---
 
+## 2026-04-24 12:45 MST - SESSION HANDOFF
+
+Actor: Commander
+
+Completed:
+- Directed Path C for Sam's minor URL-formatting feedback on TCP-WO-320 validation text
+
+Changed:
+- 00_governance/shared_memory/SESSION_HANDOFF.md (this entry appended)
+
+Decisions:
+- URL formatting inconsistency in app.py generate_validation() (bare "azcourts.gov/selfservicecenter" vs full "https://..." style used elsewhere) is NON-BLOCKING and deferred
+- Fix will be bundled into the next app.py-related work order rather than prompting a micro-WO or chat override now
+- Claude will not modify NEXT_ACTIONS.md for this deferral (Rule 5); if Sam wants it formally tracked in Carry Forward / Hardening he can add it in a future reconciliation WO
+
+Open Issues:
+- (no change from prior entry)
+
+Next Recommended Action:
+- When Sam scopes the next app.py WO (likely one of: CSRF hardening, Stripe webhook handler, app.py/app_production.py consolidation, or similar), Claude includes the URL formatting fix in the same commit
+
+---
+
 ## FORMAT FOR FUTURE ENTRIES
 
 ## YYYY-MM-DD HH:MM MST - SESSION HANDOFF
